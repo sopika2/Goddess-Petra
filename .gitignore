@@ -1,0 +1,38 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+
+# env files (keep .env.example, ignore real secrets)
+.env*.local
+.env.local*
+.env
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# user-uploaded media and live data (do not commit private content)
+/data/uploads/*
+!/data/uploads/.gitkeep
+/data/profiles.json
+/data/visits.json
+/data/logins.json
+/data/settings.json
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules

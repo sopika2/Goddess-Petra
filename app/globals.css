@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink text-white font-body antialiased;
+  background-image: radial-gradient(
+      1100px 560px at 50% -10%,
+      rgba(255, 46, 136, 0.16),
+      transparent 60%
+    ),
+    radial-gradient(820px 460px at 88% 8%, rgba(200, 16, 46, 0.12), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Age gate: hidden instantly once verified (set before paint by the layout
+   script); scroll locked while it's showing. Prevents the flash on reload. */
+html[data-age="ok"] #age-gate {
+  display: none !important;
+}
+html:not([data-age="ok"]) body {
+  overflow: hidden;
+}
+
+@layer components {
+  /* ── Generic pill buttons (admin + fallbacks) ───────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3
+      text-sm font-semibold tracking-wide transition focus:outline-none
+      focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
+      focus-visible:ring-offset-ink disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-ink shadow-glow hover:bg-accent-soft;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-surface/60 text-white hover:border-accent hover:text-accent;
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-surface/70 backdrop-blur;
+  }
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm
+      text-white placeholder:text-muted focus:border-accent focus:outline-none;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-muted;
+  }
+
+  /* ── Evidence-file theme ────────────────────────────────────────── */
+  /* Monospace surveillance / case-file chrome (labels only). */
+  .hud {
+    @apply font-typewriter uppercase tracking-[0.16em] text-[11px] text-muted;
+  }
+
+  /* Caution-tape strip — keep thin to avoid chromostereopsis. */
+  .tape {
+    background: repeating-linear-gradient(
+      45deg,
+      #f4c400 0 14px,
+      #0b0a0d 14px 28px
+    );
+  }
+
+  /* Rotated stamp badge (EVIDENCE / EXHIBIT / EXPOSED). */
+  .stamp {
+    @apply inline-block font-typewriter uppercase tracking-wider text-[10px]
+      border-2 border-current px-2 py-1;
+  }
+
+  /* Redaction — a glossy "censored" marker with a hot-pink edge; real text
+     underneath (screen-reader accessible), revealed on hover/focus. */
+  .redact {
+    position: relative;
+    color: transparent;
+    border-radius: 4px;
+    padding: 0 0.4em;
+    background-image: linear-gradient(180deg, #2a2330, #0c0b0f 55%, #000);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 46, 136, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 1px 6px rgba(0, 0, 0, 0.5);
+    transition: color 0.15s ease;
+  }
+  .redact::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.06) 0 2px,
+      transparent 2px 5px
+    );
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+  .redact:hover,
+  .redact:focus {
+    color: inherit;
+    background-image: none;
+    box-shadow: none;
+  }
+  /* Keep a real focus ring for keyboard users (mouse hover stays clean). */
+  .redact:focus-visible {
+    outline: 2px solid #ff2e88;
+    outline-offset: 2px;
+  }
+  .redact:hover::after,
+  .redact:focus::after {
+    opacity: 0;
+  }
+
+  /* Hot-pink highlighter sticker (the bratty tagline). */
+  .sticker-tag {
+    @apply inline-block bg-accent px-3 py-1 text-ink shadow-stamp;
+  }
+
+  /* The LOSERS chip — meanest, brightest thing on the page. */
+  .btn-loser {
+    @apply inline-block rotate-2 border-2 border-ink bg-accent px-3 py-1.5
+      font-typewriter text-xs font-bold uppercase tracking-wide text-ink
+      transition hover:rotate-0;
+    box-shadow: 0 0 0 2px #ff2e88;
+  }
+
+  /* The money/ads chip — gold, like a caution/cash tag. */
+  .btn-feed {
+    @apply inline-block -rotate-2 border-2 border-ink bg-evidence px-3 py-1.5
+      font-typewriter text-xs font-bold uppercase tracking-wide text-ink
+      transition hover:rotate-0;
+    box-shadow: 0 0 0 2px #f4c400;
+  }
+
+  /* Ad slot frame on the money page. */
+  .ad-slot {
+    @apply rounded-lg border border-dashed border-line bg-surface/50 p-4;
+  }
+
+  /* The "grovel" candy button — big, tempting, push-down depth. */
+  .btn-grovel {
+    @apply inline-flex select-none items-center justify-center rounded-full
+      bg-accent px-12 py-5 font-display text-2xl uppercase tracking-wide text-ink
+      transition hover:brightness-110 active:translate-y-1;
+    box-shadow:
+      0 6px 0 #b3005e,
+      0 0 44px rgba(255, 46, 136, 0.5);
+  }
+  .btn-grovel:active {
+    box-shadow:
+      0 2px 0 #b3005e,
+      0 0 30px rgba(255, 46, 136, 0.45);
+  }
+
+  /* Manila evidence folder (the Throne shell). */
+  .folder {
+    @apply relative rounded-tl-sm rounded-tr-2xl bg-manila p-6 text-[#2A1E06] shadow-folder;
+  }
+
+  /* The tribute slab — push-down candy depth, distinct from every button. */
+  .btn-throne {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-md
+      bg-blood px-6 py-3 font-typewriter text-sm font-bold uppercase
+      tracking-wider text-white transition hover:brightness-110 active:translate-y-1;
+    box-shadow: 0 4px 0 #7a0a1d;
+  }
+
+  /* Exposed Wall evidence row. */
+  .case-row {
+    @apply relative flex items-center gap-4 rounded-md border border-line
+      border-l-[3px] border-l-accent bg-surface/70 p-3 transition
+      hover:border-l-accent-soft hover:shadow-glow;
+  }
+}
+
+/* Blinking REC dot — purely decorative, respects reduced motion. */
+@keyframes rec {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.25;
+  }
+}
+.rec-dot {
+  animation: rec 1.2s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rec-dot {
+    animation: none;
+  }
+}

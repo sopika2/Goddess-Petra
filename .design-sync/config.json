@@ -1,0 +1,16 @@
+{
+  "projectId": "7fd2594a-d57a-41d8-9fcd-3c2ed25dbcf3",
+  "pkg": "@gp/design-system",
+  "globalName": "GPDesignSystem",
+  "shape": "package",
+  "buildCmd": "npm --prefix design-system run build",
+  "srcDir": "src",
+  "cssEntry": "dist/styles.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "overrides": {
+    "AgeGate": { "cardMode": "single", "viewport": "460x620", "primaryStory": "Default" },
+    "ProfileBar": { "cardMode": "column" },
+    "LinkCard": { "cardMode": "column" },
+    "SiteFooter": { "cardMode": "column" }
+  }
+}
