@@ -41,6 +41,9 @@ export interface SiteSettings {
   /** Page-level ad code (popunder / social-bar / smartlink) that runs on the
    *  /feed money page only — never on the landing page or the rest of the site. */
   adsFeedScript: string;
+  /** Raw <meta> tags for the /feed page <head> (e.g. ExoClick Client Hints
+   *  "Delegate-CH" tag) — improves ad targeting. */
+  adsFeedHead: string;
   /** Contents served at /ads.txt (the line(s) your ad network gives you). */
   adsTxt: string;
   /** Raw search-engine verification <meta> tags (Google/Bing/etc.), pasted as
@@ -75,6 +78,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     "you don't get to touch. you get to look — and looking costs you. that's the whole point :3",
   adsSlots: [],
   adsFeedScript: "",
+  adsFeedHead: "",
   adsTxt: "",
   verificationTags:
     '<meta name="6a97888e-site-verification" content="4824922ed58595ceccc4ca8c0bcd5f06">',

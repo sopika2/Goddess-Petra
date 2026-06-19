@@ -21,13 +21,36 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+// Pull <meta> tags out of the pasted /feed head code so we can render them as
+// real elements (React 19 hoists <meta> into <head>). Handles both name= and
+// http-equiv= (ExoClick's Client Hints "Delegate-CH" tag uses http-equiv).
+function parseHeadMetas(raw: string) {
+  const metas: { httpEquiv?: string; name?: string; content: string }[] = [];
+  for (const tag of raw.match(/<meta[^>]*>/gi) || []) {
+    const httpEquiv = tag.match(/http-equiv=["']([^"']+)["']/i)?.[1];
+    const name = tag.match(/\bname=["']([^"']+)["']/i)?.[1];
+    const content = tag.match(/content=["']([^"']+)["']/i)?.[1];
+    if (content && (httpEquiv || name)) metas.push({ httpEquiv, name, content });
+  }
+  return metas;
+}
+
 export default async function FeedPage() {
   const s = await getSettings();
   // When the ad page is switched off, it doesn't exist as far as visitors go.
   if (!s.feedEnabled) redirect("/");
 
+  const headMetas = parseHeadMetas(s.adsFeedHead);
+
   return (
     <main className="min-h-screen">
+      {headMetas.map((m, i) =>
+        m.httpEquiv ? (
+          <meta key={i} httpEquiv={m.httpEquiv} content={m.content} />
+        ) : (
+          <meta key={i} name={m.name} content={m.content} />
+        ),
+      )}
       <div className="tape h-3" />
 
       <header className="relative mx-auto max-w-6xl px-6 py-12 text-center lg:py-16">

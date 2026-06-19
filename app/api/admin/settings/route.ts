@@ -28,6 +28,7 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "adsSub",
   "adsNote",
   "adsFeedScript",
+  "adsFeedHead",
   "adsTxt",
   "verificationTags",
 ];

@@ -196,6 +196,22 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
           </p>
         </div>
         <div>
+          <label className="label">Feed-page &lt;head&gt; code (Client Hints)</label>
+          <textarea
+            className="input min-h-[90px] resize-y font-mono text-xs"
+            value={form.adsFeedHead}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, adsFeedHead: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            Paste ExoClick&apos;s <strong>Client Hints meta tag</strong> (the{" "}
+            <code>&lt;meta http-equiv=&quot;Delegate-CH&quot;…&gt;</code>) — it
+            goes in the <code>&lt;head&gt;</code> of <code>/feed</code> and
+            improves ad targeting. One tag covers all your ExoClick zones.
+          </p>
+        </div>
+        <div>
           <label className="label">ads.txt</label>
           <textarea
             className="input min-h-[100px] resize-y font-mono text-xs"
