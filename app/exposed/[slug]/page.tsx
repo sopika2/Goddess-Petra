@@ -59,20 +59,22 @@ export default async function ProfilePage({
       return p;
     }
   };
+  const xHandle = profile.twitter.replace(/^@+/, "").trim();
+  const profileUrl = `${siteUrl}/exposed/${profile.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    url: `${siteUrl}/exposed/${profile.slug}`,
+    name: profile.name,
+    url: profileUrl,
     mainEntity: {
       "@type": "Person",
       name: profile.name,
+      url: profileUrl,
       ...(profile.thumbnail ? { image: abs(profile.thumbnail) } : {}),
       ...(profile.info
         ? { description: profile.info.replace(/\s+/g, " ").slice(0, 300) }
         : {}),
-      ...(profile.twitter
-        ? { sameAs: [`https://x.com/${profile.twitter}`] }
-        : {}),
+      ...(xHandle ? { sameAs: [`https://x.com/${xHandle}`] } : {}),
     },
   };
 
@@ -117,14 +119,14 @@ export default async function ProfilePage({
               {profile.tagline}
             </p>
           ) : null}
-          {profile.twitter ? (
+          {xHandle ? (
             <a
-              href={`https://x.com/${profile.twitter}`}
+              href={`https://x.com/${xHandle}`}
               target="_blank"
               rel="noreferrer"
               className="mt-2 inline-flex items-center gap-1 font-typewriter text-sm text-muted hover:text-accent-soft"
             >
-              @{profile.twitter} on X ↗
+              @{xHandle} on X ↗
             </a>
           ) : null}
         </div>
