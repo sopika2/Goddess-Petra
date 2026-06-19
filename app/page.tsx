@@ -116,6 +116,17 @@ export default async function HomePage() {
     </Link>
   );
 
+  const xLink = handle ? (
+    <a
+      href={`https://x.com/${handle}`}
+      target="_blank"
+      rel="me noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/5 px-5 py-2.5 font-typewriter text-sm uppercase tracking-wide text-white transition hover:border-accent hover:text-accent"
+    >
+      follow on 𝕏 — @{handle}
+    </a>
+  ) : null;
+
   const bio = (sizeCls: string) =>
     s.bioLines.map((line, i) => (
       <p key={i} className={sizeCls}>
@@ -171,6 +182,8 @@ export default async function HomePage() {
               </span>
             </p>
           ) : null}
+
+          {xLink ? <div className="mt-9">{xLink}</div> : null}
         </section>
 
         <div className="tape -mx-6 h-2" />
@@ -301,6 +314,8 @@ export default async function HomePage() {
                 </span>
               </p>
             ) : null}
+
+            {xLink ? <div className="mt-8">{xLink}</div> : null}
           </div>
         </div>
 
