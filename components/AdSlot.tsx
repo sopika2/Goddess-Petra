@@ -46,5 +46,7 @@ export default function AdSlot({ html, index }: { html: string; index: number })
     );
   }
 
-  return <div ref={ref} className="ad-slot overflow-hidden" />;
+  // No padding/border frame here — let the ad fill its slot; just center it so
+  // narrower creatives sit in the middle of the 300px column.
+  return <div ref={ref} className="flex justify-center overflow-hidden" />;
 }

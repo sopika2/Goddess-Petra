@@ -124,10 +124,10 @@ export default function FeedExperience({
         <p className="mt-1 font-typewriter text-xs text-muted">{taunt}</p>
       </div>
 
-      {/* banners — centered, each shown once */}
-      <div className="flex flex-wrap justify-center gap-6">
+      {/* banners — sit side by side, wrap to new rows, each shown once */}
+      <div className="flex flex-wrap items-start justify-center gap-6">
         {items.map((html, i) => (
-          <div key={i} className="w-full max-w-[360px]">
+          <div key={i} className="w-[300px] max-w-full">
             <AdSlot html={html} index={i} />
           </div>
         ))}
