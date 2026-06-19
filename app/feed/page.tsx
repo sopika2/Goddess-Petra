@@ -41,6 +41,9 @@ export default async function FeedPage() {
   if (!s.feedEnabled) redirect("/");
 
   const headMetas = parseHeadMetas(s.adsFeedHead);
+  // ExoClick's popunder code carries "idzone": <n>; the cooldown timer listens
+  // for that zone's creativeDisplayed event to know when a pop actually fired.
+  const popZoneId = s.adsFeedScript.match(/"idzone"\s*:\s*"?(\d+)"?/)?.[1] || "";
 
   return (
     <main className="min-h-screen">
@@ -76,7 +79,11 @@ export default async function FeedPage() {
       <div className="tape h-3" />
 
       <section className="mx-auto max-w-6xl px-6 py-10">
-        <FeedExperience slots={s.adsSlots} />
+        <FeedExperience
+          slots={s.adsSlots}
+          popZoneId={popZoneId}
+          cooldown={s.adsFeedCooldownSeconds}
+        />
       </section>
 
       {/* Popunder / social-bar: runs on this page only, fires on clicks. */}

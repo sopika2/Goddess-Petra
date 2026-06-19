@@ -196,6 +196,27 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
           </p>
         </div>
         <div>
+          <label className="label">Popunder cooldown (seconds)</label>
+          <input
+            type="number"
+            min={5}
+            className="input max-w-[10rem]"
+            value={form.adsFeedCooldownSeconds}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                adsFeedCooldownSeconds: parseInt(e.target.value, 10) || 0,
+              }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            The countdown shown next to the GROVEL button. Set it to match your
+            ExoClick popunder capping (e.g. <code>60</code> for &quot;1 every 1
+            minute&quot;), so &quot;ready&quot; appears exactly when the next pop
+            can fire.
+          </p>
+        </div>
+        <div>
           <label className="label">Feed-page &lt;head&gt; code (Client Hints)</label>
           <textarea
             className="input min-h-[90px] resize-y font-mono text-xs"

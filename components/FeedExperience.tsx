@@ -5,10 +5,13 @@ import AdSlot from "./AdSlot";
 
 /**
  * The money page's engagement loop. The "grovel" clicker is the real earner for
- * broke visitors: every click is a document click, which is what arms the
- * popunder (see the feed-page ad script). We render each configured banner ONCE
- * — ad networks (Adsterra) collide / flag duplicate placements of the same zone,
- * so we never repeat a real ad. With no ads configured we show placeholders.
+ * broke visitors: each click is a document click, which is what arms the
+ * popunder (ExoClick zone, triggered on the .btn-grovel class).
+ *
+ * The popunder is frequency-capped (e.g. 1 / minute). We show a live COOLDOWN
+ * timer synced to the real ad: ExoClick dispatches a `creativeDisplayed-<zone>`
+ * event and writes a `zone-cap-<zone>` cookie when a pop fires, so we can show
+ * exactly when the next one is available — nudging them to come back and click.
  */
 
 const TAUNTS = [
@@ -24,10 +27,20 @@ const TAUNTS = [
   "broke AND obedient. cute.",
 ];
 
-export default function FeedExperience({ slots }: { slots: string[] }) {
+export default function FeedExperience({
+  slots,
+  popZoneId = "",
+  cooldown = 60,
+}: {
+  slots: string[];
+  popZoneId?: string;
+  cooldown?: number;
+}) {
   // Real ads (each shown once), or a row of placeholders when none are set yet.
   const items = slots.length > 0 ? slots : ["", "", ""];
   const [clicks, setClicks] = useState(0);
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(0);
 
   useEffect(() => {
     try {
@@ -36,6 +49,28 @@ export default function FeedExperience({ slots }: { slots: string[] }) {
       /* ignore */
     }
   }, []);
+
+  // Sync the cooldown to ExoClick's real popunder state.
+  useEffect(() => {
+    if (!popZoneId) return;
+    const readCookie = () => {
+      const m = document.cookie.match(
+        new RegExp("(?:^|; )zone-cap-" + popZoneId + "=([^;]*)"),
+      );
+      if (!m) return 0;
+      const ts = parseInt(decodeURIComponent(m[1]).split(";")[1] || "0", 10);
+      return ts > 0 ? (ts + cooldown) * 1000 : 0;
+    };
+    setCooldownUntil(readCookie());
+    setNow(Date.now());
+    const onFire = () => setCooldownUntil(Date.now() + cooldown * 1000);
+    document.addEventListener("creativeDisplayed-" + popZoneId, onFire);
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      document.removeEventListener("creativeDisplayed-" + popZoneId, onFire);
+      clearInterval(tick);
+    };
+  }, [popZoneId, cooldown]);
 
   const grovel = () =>
     setClicks((c) => {
@@ -51,15 +86,20 @@ export default function FeedExperience({ slots }: { slots: string[] }) {
   const taunt =
     clicks === 0 ? "tap it. you know you want to." : TAUNTS[clicks % TAUNTS.length];
 
+  const remaining =
+    popZoneId && now ? Math.max(0, Math.ceil((cooldownUntil - now) / 1000)) : 0;
+  const onCooldown = remaining > 0;
+  const mmss = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
+
   return (
     <>
-      {/* grovel clicker — each click can trigger the popunder */}
+      {/* grovel clicker — each click (off cooldown) fires the popunder */}
       <div className="mx-auto mb-12 max-w-md text-center">
         <button
           type="button"
           onClick={grovel}
           aria-label="Grovel"
-          className="btn-grovel"
+          className={`btn-grovel ${onCooldown ? "opacity-60" : ""}`}
         >
           grovel ♡
         </button>
@@ -67,6 +107,20 @@ export default function FeedExperience({ slots }: { slots: string[] }) {
           you&apos;ve grovelled{" "}
           <span className="text-accent">{clicks.toLocaleString()}</span> times for me
         </p>
+        {popZoneId ? (
+          <p className="mt-2 font-typewriter text-xs uppercase tracking-wide">
+            {onCooldown ? (
+              <span className="text-muted">
+                cooldown — feed me again in{" "}
+                <span className="text-accent">{mmss}</span>
+              </span>
+            ) : (
+              <span className="text-accent">
+                <span className="rec-dot">●</span> ready — feed me ♡
+              </span>
+            )}
+          </p>
+        ) : null}
         <p className="mt-1 font-typewriter text-xs text-muted">{taunt}</p>
       </div>
 

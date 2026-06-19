@@ -53,6 +53,9 @@ export async function PUT(req: Request) {
   if (typeof body?.feedEnabled === "boolean") {
     patch.feedEnabled = body.feedEnabled;
   }
+  if (typeof body?.adsFeedCooldownSeconds === "number" && isFinite(body.adsFeedCooldownSeconds)) {
+    patch.adsFeedCooldownSeconds = Math.max(5, Math.min(86400, Math.floor(body.adsFeedCooldownSeconds)));
+  }
   const saved = await updateSettings(patch);
   return NextResponse.json(saved);
 }

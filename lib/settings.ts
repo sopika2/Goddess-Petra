@@ -46,6 +46,9 @@ export interface SiteSettings {
   /** Raw <meta> tags for the /feed page <head> (e.g. ExoClick Client Hints
    *  "Delegate-CH" tag) — improves ad targeting. */
   adsFeedHead: string;
+  /** Seconds shown by the GROVEL cooldown timer — match your ExoClick popunder
+   *  capping (e.g. 60 for "1 every 1 minute"). */
+  adsFeedCooldownSeconds: number;
   /** Contents served at /ads.txt (the line(s) your ad network gives you). */
   adsTxt: string;
   /** Raw search-engine verification <meta> tags (Google/Bing/etc.), pasted as
@@ -82,6 +85,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   adsSlots: [],
   adsFeedScript: "",
   adsFeedHead: "",
+  adsFeedCooldownSeconds: 60,
   adsTxt: "",
   verificationTags:
     '<meta name="6a97888e-site-verification" content="4824922ed58595ceccc4ca8c0bcd5f06">',
