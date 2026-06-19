@@ -163,6 +163,23 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
           </p>
         </div>
         <div>
+          <label className="label">Feed-page ad code (popunder / social bar)</label>
+          <textarea
+            className="input min-h-[120px] resize-y font-mono text-xs"
+            value={form.adsFeedScript}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, adsFeedScript: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            For formats with no banner of their own — paste your Adsterra{" "}
+            <strong>popunder</strong> (or social-bar) code here. It runs on the{" "}
+            <code>/feed</code> page only and fires when a visitor clicks (the
+            GROVEL button counts). Don&apos;t put popunder code in a banner slot
+            above.
+          </p>
+        </div>
+        <div>
           <label className="label">ads.txt</label>
           <textarea
             className="input min-h-[100px] resize-y font-mono text-xs"

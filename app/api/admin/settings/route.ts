@@ -27,6 +27,7 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "adsHeading",
   "adsSub",
   "adsNote",
+  "adsFeedScript",
   "adsTxt",
 ];
 

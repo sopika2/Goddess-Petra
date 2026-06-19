@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
 import FeedExperience from "@/components/FeedExperience";
+import AdScript from "@/components/AdScript";
 import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
@@ -51,6 +52,9 @@ export default async function FeedPage() {
       <section className="mx-auto max-w-6xl px-6 py-10">
         <FeedExperience slots={s.adsSlots} />
       </section>
+
+      {/* Popunder / social-bar: runs on this page only, fires on clicks. */}
+      <AdScript html={s.adsFeedScript} />
 
       <div className="tape h-3" />
 

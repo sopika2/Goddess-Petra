@@ -35,6 +35,9 @@ export interface SiteSettings {
   adsNote: string;
   /** Ad embed blocks (raw HTML/script from an ad network). One per slot. */
   adsSlots: string[];
+  /** Page-level ad code (popunder / social-bar / smartlink) that runs on the
+   *  /feed money page only — never on the landing page or the rest of the site. */
+  adsFeedScript: string;
   /** Contents served at /ads.txt (the line(s) your ad network gives you). */
   adsTxt: string;
 }
@@ -64,6 +67,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   adsNote:
     "you don't get to touch. you get to look — and looking costs you. that's the whole point :3",
   adsSlots: [],
+  adsFeedScript: "",
   adsTxt: "",
 };
 
