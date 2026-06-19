@@ -29,6 +29,32 @@ export interface Visit {
   connection?: string;
   /** "yes"/"no" — touch screen present. */
   touch?: string;
+  /** Country / city / region from Cloudflare's visitor-location headers. */
+  country?: string;
+  city?: string;
+  region?: string;
+  /** GPU model (WebGL UNMASKED_RENDERER) — quite identifying. */
+  gpu?: string;
+  /** Composite device fingerprint hash — same device/browser ⇒ same value. */
+  fp?: string;
+  /** Full language preference list (navigator.languages). */
+  langs?: string;
+  /** Screen color depth in bits. */
+  colorDepth?: string;
+  /** Screen orientation, e.g. "landscape-primary". */
+  orientation?: string;
+  /** Do Not Track signal. */
+  dnt?: string;
+  /** "yes"/"no" — cookies enabled. */
+  cookies?: string;
+  /** Network detail: downlink / round-trip / data-saver. */
+  netInfo?: string;
+  /** Touch points supported (0 = none). */
+  maxTouch?: string;
+  /** High-entropy UA: device model · OS version · CPU arch. */
+  uaFull?: string;
+  /** Approx storage quota (GB). */
+  storage?: string;
 }
 
 export interface LoginEvent {
@@ -106,6 +132,20 @@ function rowToVisit(r: any): Visit {
     memory: r.memory,
     connection: r.connection,
     touch: r.touch,
+    country: r.country,
+    city: r.city,
+    region: r.region,
+    gpu: r.gpu,
+    fp: r.fp,
+    langs: r.langs,
+    colorDepth: r.color_depth,
+    orientation: r.orientation,
+    dnt: r.dnt,
+    cookies: r.cookies,
+    netInfo: r.net_info,
+    maxTouch: r.max_touch,
+    uaFull: r.ua_full,
+    storage: r.storage_quota,
   };
 }
 function rowToLogin(r: any): LoginEvent {
@@ -136,11 +176,16 @@ const clampInt = (n: number, lo: number, hi: number) =>
 // ── writes ──────────────────────────────────────────────────────────────
 export async function logVisit(v: Omit<Visit, "id" | "ts">): Promise<void> {
   const pool = await db();
+  const s = (x: unknown, n: number) =>
+    typeof x === "string" ? x.slice(0, n) : "";
   await pool.query(
     `INSERT INTO visits
       (id, ts, ip, ua, path, referer, browser, os, device, lang, tz, screen, viewport, platform,
-       dpr, cores, memory, connection, touch)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       dpr, cores, memory, connection, touch,
+       country, city, region, gpu, fp, langs, color_depth, orientation, dnt, cookies,
+       net_info, max_touch, ua_full, storage_quota)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       crypto.randomUUID(),
       new Date().toISOString(),
@@ -161,6 +206,20 @@ export async function logVisit(v: Omit<Visit, "id" | "ts">): Promise<void> {
       v.memory || "",
       v.connection || "",
       v.touch || "",
+      s(v.country, 8),
+      s(v.city, 80),
+      s(v.region, 80),
+      s(v.gpu, 160),
+      s(v.fp, 32),
+      s(v.langs, 120),
+      s(v.colorDepth, 8),
+      s(v.orientation, 24),
+      s(v.dnt, 8),
+      s(v.cookies, 4),
+      s(v.netInfo, 60),
+      s(v.maxTouch, 6),
+      s(v.uaFull, 160),
+      s(v.storage, 12),
     ],
   );
 }
@@ -219,8 +278,9 @@ export async function searchVisits(q: string, limit = 300): Promise<Visit[]> {
     `SELECT * FROM visits
      WHERE ip LIKE ? OR path LIKE ? OR browser LIKE ? OR os LIKE ? OR device LIKE ?
         OR lang LIKE ? OR tz LIKE ? OR ua LIKE ? OR referer LIKE ?
+        OR country LIKE ? OR city LIKE ? OR region LIKE ? OR gpu LIKE ? OR fp LIKE ?
      ORDER BY ts DESC LIMIT ${clampInt(limit, 1, 2000)}`,
-    [like, like, like, like, like, like, like, like, like],
+    [like, like, like, like, like, like, like, like, like, like, like, like, like, like],
   );
   return (rows as any[]).map(rowToVisit);
 }

@@ -16,6 +16,16 @@ export async function POST(req: Request) {
     const { browser, os, device } = parseUa(ua);
     const str = (x: unknown, n: number) =>
       typeof x === "string" ? x.slice(0, n) : "";
+    const h = (name: string) => (req.headers.get(name) || "").slice(0, 80);
+
+    // Geo from Cloudflare's visitor-location headers — only trusted when behind
+    // the tunnel (TRUST_PROXY_HEADERS=1), else a visitor could spoof them.
+    // Enable them in Cloudflare: Rules → Transform Rules → Managed Transforms →
+    // "Add visitor location headers".
+    const behindCf = process.env.TRUST_PROXY_HEADERS === "1";
+    const country = behindCf ? h("cf-ipcountry") : "";
+    const city = behindCf ? h("cf-ipcity") : "";
+    const region = behindCf ? h("cf-region") : "";
 
     await logVisit({
       ip: clientIp(req.headers),
@@ -37,6 +47,20 @@ export async function POST(req: Request) {
       memory: str(body?.memory, 10),
       connection: str(body?.connection, 20),
       touch: str(body?.touch, 6),
+      country,
+      city,
+      region,
+      gpu: str(body?.gpu, 160),
+      fp: str(body?.fp, 32),
+      langs: str(body?.langs, 120),
+      colorDepth: str(body?.colorDepth, 8),
+      orientation: str(body?.orientation, 24),
+      dnt: str(body?.dnt, 8),
+      cookies: str(body?.cookies, 4),
+      netInfo: str(body?.netInfo, 60),
+      maxTouch: str(body?.maxTouch, 6),
+      uaFull: str(body?.uaFull, 160),
+      storage: str(body?.storage, 12),
     });
     return NextResponse.json({ ok: true });
   } catch {

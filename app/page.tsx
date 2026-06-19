@@ -122,9 +122,9 @@ export default async function HomePage() {
       href={`https://x.com/${handle}`}
       target="_blank"
       rel="me noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/5 px-5 py-2.5 font-typewriter text-sm uppercase tracking-wide text-white transition hover:border-accent hover:text-accent"
+      className="inline-flex -rotate-1 items-center gap-2 border-2 border-white bg-ink px-5 py-2.5 font-display text-base uppercase tracking-wide text-white shadow-stamp transition hover:rotate-0 hover:border-ink hover:bg-accent hover:text-ink"
     >
-      follow on 𝕏 — @{handle}
+      <span className="text-lg leading-none">𝕏</span> follow @{handle}
     </a>
   ) : null;
 

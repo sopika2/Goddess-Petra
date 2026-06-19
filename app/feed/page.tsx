@@ -78,7 +78,7 @@ export default async function FeedPage() {
 
       <div className="tape h-3" />
 
-      <section className="mx-auto max-w-6xl px-6 py-10">
+      <section className="mx-auto max-w-6xl overflow-x-hidden px-6 py-10">
         <FeedExperience
           slots={s.adsSlots}
           popZoneId={popZoneId}

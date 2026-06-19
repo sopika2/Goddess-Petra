@@ -134,6 +134,7 @@ export default function LogTables({
           <thead className="hud border-b border-line/60">
             <tr>
               <th className="p-3">ip</th>
+              <th className="p-3">country</th>
               <th className="p-3">page</th>
               <th className="p-3">browser</th>
               <th className="p-3">os</th>
@@ -145,7 +146,7 @@ export default function LogTables({
           <tbody className="divide-y divide-line/60">
             {visits.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-4 text-muted">
+                <td colSpan={8} className="p-4 text-muted">
                   No matching visits.
                 </td>
               </tr>
@@ -162,6 +163,9 @@ export default function LogTables({
                 >
                   <td className="whitespace-nowrap p-3 font-typewriter text-accent-soft">
                     {v.ip}
+                  </td>
+                  <td className="whitespace-nowrap p-3 text-muted">
+                    {v.country || "—"}
                   </td>
                   <td className="p-3 text-white">{v.path}</td>
                   <td className="whitespace-nowrap p-3 text-muted">
@@ -269,20 +273,34 @@ export default function LogTables({
 function visitRows(v: Visit): [string, string][] {
   return [
     ["IP", v.ip],
+    ["Country", v.country || "—"],
+    ["City", v.city || "—"],
+    ["Region", v.region || "—"],
     ["Page", v.path],
     ["When", fmt(v.ts)],
+    ["Fingerprint", v.fp || "—"],
     ["Browser", v.browser || "—"],
     ["OS", v.os || "—"],
+    ["Device detail", v.uaFull || "—"],
     ["Device", v.device || "—"],
+    ["GPU", v.gpu || "—"],
     ["Language", v.lang || "—"],
+    ["Languages", v.langs || "—"],
     ["Timezone", v.tz || "—"],
     ["Screen", v.screen || "—"],
     ["Viewport", v.viewport || "—"],
+    ["Color depth", v.colorDepth ? `${v.colorDepth}-bit` : "—"],
+    ["Orientation", v.orientation || "—"],
     ["Pixel ratio", v.dpr || "—"],
     ["CPU cores", v.cores || "—"],
     ["RAM (GB)", v.memory || "—"],
+    ["Storage", v.storage || "—"],
     ["Connection", v.connection || "—"],
-    ["Touch screen", v.touch || "—"],
+    ["Network", v.netInfo || "—"],
+    ["Touch", v.touch || "—"],
+    ["Touch points", v.maxTouch || "—"],
+    ["Do Not Track", v.dnt || "—"],
+    ["Cookies", v.cookies || "—"],
     ["Platform", v.platform || "—"],
     ["Referer", v.referer || "—"],
     ["User-Agent", v.ua || "—"],
