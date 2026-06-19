@@ -80,7 +80,9 @@ export default async function ProfilePage({
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 lg:max-w-4xl">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
       />
       <header className="py-10">
         <Link
