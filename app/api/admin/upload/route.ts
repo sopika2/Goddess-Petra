@@ -20,11 +20,22 @@ export async function POST(req: Request) {
 
   const form = await req.formData();
   const file = form.get("file");
-  if (!(file instanceof File)) {
+  // Don't use `instanceof File`: the File global doesn't exist on Node < 20
+  // (throws "File is not defined"). Duck-type the uploaded blob instead so this
+  // works on any Node version.
+  if (
+    !file ||
+    typeof file === "string" ||
+    typeof (file as { arrayBuffer?: unknown }).arrayBuffer !== "function"
+  ) {
     return NextResponse.json({ error: "No file provided." }, { status: 400 });
   }
+  const upload = file as {
+    type: string;
+    arrayBuffer: () => Promise<ArrayBuffer>;
+  };
 
-  const ext = EXT_BY_TYPE[file.type];
+  const ext = EXT_BY_TYPE[upload.type];
   if (!ext) {
     return NextResponse.json(
       { error: "Unsupported file type. Use JPG, PNG, WebP or GIF." },
@@ -32,7 +43,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const buf = Buffer.from(await file.arrayBuffer());
+  const buf = Buffer.from(await upload.arrayBuffer());
   if (buf.length > MAX_BYTES) {
     return NextResponse.json(
       { error: "File too large (max 15 MB)." },
