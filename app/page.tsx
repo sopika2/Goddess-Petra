@@ -5,6 +5,7 @@ import { getSettings, isSafeUrl } from "@/lib/settings";
 import { isAuthed } from "@/lib/auth";
 import { readUserSession } from "@/lib/usersession";
 import { renderWithRedactions } from "@/components/RichText";
+import FeedHint from "@/components/FeedHint";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -234,7 +235,12 @@ export default async function HomePage() {
         <header className="flex items-center justify-between gap-4 px-10 py-5 xl:px-16">
           {accountChip}
           <div className="flex items-center gap-3">
-            {s.feedEnabled ? feedChip : null}
+            {s.feedEnabled ? (
+              <div className="relative">
+                {feedChip}
+                <FeedHint label="pay me by watching ads" />
+              </div>
+            ) : null}
             {losersChip}
           </div>
         </header>
