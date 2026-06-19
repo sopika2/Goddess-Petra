@@ -23,6 +23,7 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "wallSub",
   "wallEmpty",
   "footerThreat",
+  "contactEmail",
   "adsNavLabel",
   "adsHeading",
   "adsSub",

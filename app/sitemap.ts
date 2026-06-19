@@ -41,6 +41,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           },
         ]
       : []),
+    ...["2257", "dmca", "privacy", "terms"].map((slug) => ({
+      url: `${siteUrl}/legal/${slug}`,
+      lastModified: now,
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+    })),
     ...profiles.map((p) => ({
       url: `${siteUrl}/exposed/${p.slug}`,
       lastModified: p.updatedAt ? new Date(p.updatedAt) : now,

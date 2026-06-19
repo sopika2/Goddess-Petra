@@ -248,8 +248,14 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
       </section>
 
       <section className="card space-y-4 p-6">
-        <h2 className="hud text-accent">footer</h2>
+        <h2 className="hud text-accent">footer &amp; contact</h2>
         <Field label="Threat line" value={form.footerThreat} onChange={set("footerThreat")} />
+        <Field
+          label="Contact email"
+          hint="Public email for removal / DMCA / business requests. Shown in the footer and on the legal pages (2257, DMCA, privacy, terms)."
+          value={form.contactEmail}
+          onChange={set("contactEmail")}
+        />
       </section>
 
       <div className="flex items-center gap-3">

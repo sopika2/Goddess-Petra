@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 
 export default async function SiteFooter() {
@@ -30,10 +31,33 @@ export default async function SiteFooter() {
         © {year} {s.siteName}. All rights reserved. 18+ only.
       </p>
       <p className="mt-2 text-xs text-muted">
-        All individuals featured on this site are 18 or older and have consented
-        to appear. To request removal of content, use the contact details
-        provided.
+        All individuals featured on this site are 18 or older and appear with
+        consent. To request removal of content, email{" "}
+        <a
+          href={`mailto:${s.contactEmail}`}
+          className="underline hover:text-accent-soft"
+        >
+          {s.contactEmail}
+        </a>
+        .
       </p>
+      <nav className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
+        <Link href="/legal/2257" className="hover:text-accent-soft">
+          2257 Statement
+        </Link>
+        <span aria-hidden>·</span>
+        <Link href="/legal/dmca" className="hover:text-accent-soft">
+          DMCA / Removal
+        </Link>
+        <span aria-hidden>·</span>
+        <Link href="/legal/privacy" className="hover:text-accent-soft">
+          Privacy
+        </Link>
+        <span aria-hidden>·</span>
+        <Link href="/legal/terms" className="hover:text-accent-soft">
+          Terms
+        </Link>
+      </nav>
     </footer>
   );
 }

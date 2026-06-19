@@ -28,6 +28,8 @@ export interface SiteSettings {
   wallSub: string;
   wallEmpty: string;
   footerThreat: string;
+  /** Public contact email for removal / DMCA / business requests. */
+  contactEmail: string;
   /** Master switch for the ad/money page: shows the FEED ME button + /feed when
    *  on; hides the button and makes /feed redirect home when off. */
   feedEnabled: boolean;
@@ -70,6 +72,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   wallSub: "you're on the list now ♡",
   wallEmpty: "no one's been brave enough… give it time :3",
   footerThreat: "I know what you did",
+  contactEmail: "petra@goddess-petra.info",
   feedEnabled: false,
   adsNavLabel: "feed me ▸",
   adsHeading: "Pay with your eyes",
