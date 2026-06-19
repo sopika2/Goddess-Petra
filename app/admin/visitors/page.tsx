@@ -16,6 +16,7 @@ import {
 import AdminNav from "../AdminNav";
 import SearchBox from "./SearchBox";
 import LogTables from "./LogTables";
+import AutoRefresh from "./AutoRefresh";
 
 export const dynamic = "force-dynamic";
 
@@ -79,12 +80,19 @@ export default async function VisitorsPage({
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       <AdminNav active="Visitors" />
-      <h1 className="font-display text-3xl uppercase">Visitors &amp; Logins</h1>
-      <p className="hud mt-1">
-        search anything · tap a row for the full record
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl uppercase">
+            Visitors &amp; Logins
+          </h1>
+          <p className="hud mt-1">
+            search anything · tap a row for the full record
+          </p>
+        </div>
+        <AutoRefresh seconds={10} />
+      </div>
 
-      <SearchBox initial={sp.q || ""} />
+      <SearchBox initialQ={q} initialIp={ip} />
 
       {focus ? (
         <div className="card mt-6 border-l-[3px] border-l-accent p-4">

@@ -26,6 +26,22 @@ export default async function HomePage() {
   const throneHost = s.throneUrl.replace(/^https?:\/\//, "");
   const throneSafe = isSafeUrl(s.throneUrl);
 
+  // Structured data so search engines understand who/what this page is.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const handle = (process.env.NEXT_PUBLIC_TWITTER_HANDLE || "").replace(/^@/, "");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    name: s.siteName,
+    url: siteUrl,
+    mainEntity: {
+      "@type": "Person",
+      name: s.siteName,
+      url: siteUrl,
+      ...(handle ? { sameAs: [`https://x.com/${handle}`] } : {}),
+    },
+  };
+
   const avatar =
     user && user.image ? (
       // eslint-disable-next-line @next/next/no-img-element
@@ -109,6 +125,10 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ───────── MOBILE / TABLET: centered poster (unchanged) ───────── */}
       <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col px-6 lg:hidden">
         <nav className="absolute left-4 top-4 z-10 sm:left-6 sm:top-6">
