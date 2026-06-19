@@ -85,7 +85,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   adsSlots: [],
   adsFeedScript: "",
   adsFeedHead: "",
-  adsFeedCooldownSeconds: 60,
+  adsFeedCooldownSeconds: 3600,
   adsTxt: "",
   verificationTags:
     '<meta name="6a97888e-site-verification" content="4824922ed58595ceccc4ca8c0bcd5f06">',

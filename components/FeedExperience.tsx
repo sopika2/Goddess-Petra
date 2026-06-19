@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AdSlot from "./AdSlot";
+import AdWall from "./AdWall";
 
 /**
  * The money page's engagement loop. The "grovel" clicker is the real earner for
@@ -36,8 +36,6 @@ export default function FeedExperience({
   popZoneId?: string;
   cooldown?: number;
 }) {
-  // Real ads (each shown once), or a row of placeholders when none are set yet.
-  const items = slots.length > 0 ? slots : ["", "", ""];
   const [clicks, setClicks] = useState(0);
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [now, setNow] = useState(0);
@@ -89,7 +87,14 @@ export default function FeedExperience({
   const remaining =
     popZoneId && now ? Math.max(0, Math.ceil((cooldownUntil - now) / 1000)) : 0;
   const onCooldown = remaining > 0;
-  const mmss = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
+  const fmtTime = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
+  };
+  const mmss = fmtTime(remaining);
 
   return (
     <>
@@ -124,14 +129,9 @@ export default function FeedExperience({
         <p className="mt-1 font-typewriter text-xs text-muted">{taunt}</p>
       </div>
 
-      {/* banners — sit side by side, wrap to new rows, each shown once */}
-      <div className="flex flex-wrap items-start justify-center gap-6">
-        {items.map((html, i) => (
-          <div key={i} className="w-[300px] max-w-full">
-            <AdSlot html={html} index={i} />
-          </div>
-        ))}
-      </div>
+      {/* banners — all zones in one container (ExoClick needs one provider +
+          one serve); they render at natural size and wrap side by side */}
+      <AdWall blocks={slots} />
     </>
   );
 }

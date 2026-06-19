@@ -40,6 +40,8 @@ export async function generateMetadata({
   };
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export default async function ProfilePage({
   params,
 }: {
@@ -49,8 +51,37 @@ export default async function ProfilePage({
   const profile = await getProfile(slug);
   if (!profile) notFound();
 
+  // Structured data so each exposed person is a searchable entity.
+  const abs = (p: string) => {
+    try {
+      return new URL(p, siteUrl).toString();
+    } catch {
+      return p;
+    }
+  };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: `${siteUrl}/exposed/${profile.slug}`,
+    mainEntity: {
+      "@type": "Person",
+      name: profile.name,
+      ...(profile.thumbnail ? { image: abs(profile.thumbnail) } : {}),
+      ...(profile.info
+        ? { description: profile.info.replace(/\s+/g, " ").slice(0, 300) }
+        : {}),
+      ...(profile.twitter
+        ? { sameAs: [`https://x.com/${profile.twitter}`] }
+        : {}),
+    },
+  };
+
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 lg:max-w-4xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="py-10">
         <Link
           href="/exposed"
