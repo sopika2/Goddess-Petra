@@ -212,6 +212,26 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
       </section>
 
       <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">search engines</h2>
+        <div>
+          <label className="label">Verification meta tags</label>
+          <textarea
+            className="input min-h-[100px] resize-y font-mono text-xs"
+            value={form.verificationTags}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, verificationTags: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            Paste the <code>&lt;meta&gt;</code> verification tag(s) from Google
+            Search Console, Bing, etc. — one per line. They&apos;re added to the
+            site&apos;s <code>&lt;head&gt;</code> so you can verify ownership.
+            Leave existing ones in place so you stay verified.
+          </p>
+        </div>
+      </section>
+
+      <section className="card space-y-4 p-6">
         <h2 className="hud text-accent">footer</h2>
         <Field label="Threat line" value={form.footerThreat} onChange={set("footerThreat")} />
       </section>

@@ -29,6 +29,7 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "adsNote",
   "adsFeedScript",
   "adsTxt",
+  "verificationTags",
 ];
 
 export async function PUT(req: Request) {

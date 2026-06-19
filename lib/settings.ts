@@ -43,6 +43,9 @@ export interface SiteSettings {
   adsFeedScript: string;
   /** Contents served at /ads.txt (the line(s) your ad network gives you). */
   adsTxt: string;
+  /** Raw search-engine verification <meta> tags (Google/Bing/etc.), pasted as
+   *  given. Rendered into the <head> on every page. */
+  verificationTags: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -73,6 +76,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   adsSlots: [],
   adsFeedScript: "",
   adsTxt: "",
+  verificationTags:
+    '<meta name="6a97888e-site-verification" content="4824922ed58595ceccc4ca8c0bcd5f06">',
 };
 
 export async function getSettings(): Promise<SiteSettings> {

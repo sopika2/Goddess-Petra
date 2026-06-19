@@ -3,6 +3,7 @@ import { Archivo_Black, Special_Elite, Caveat, Inter } from "next/font/google";
 import "./globals.css";
 import AgeGate from "@/components/AgeGate";
 import VisitLogger from "@/components/VisitLogger";
+import { getSettings } from "@/lib/settings";
 
 // Display = heavy grotesque for the ransom-note wordmark + headings.
 const display = Archivo_Black({
@@ -37,7 +38,29 @@ const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Goddess Petra";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const description = `The official site of ${siteName} — 18+ findomme & brat. Tributes, the Exposed Wall, and more.`;
 
-export const metadata: Metadata = {
+// Pull name/content out of any pasted <meta ...> verification tags so Next can
+// render them into <head>.
+function parseMetaTags(raw: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const tag of raw.match(/<meta[^>]*>/gi) || []) {
+    const name = tag.match(/name=["']([^"']+)["']/i)?.[1];
+    const content = tag.match(/content=["']([^"']+)["']/i)?.[1];
+    if (name && content) out[name] = content;
+  }
+  return out;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  let verify: Record<string, string> = {};
+  try {
+    verify = parseMetaTags((await getSettings()).verificationTags || "");
+  } catch {
+    verify = {};
+  }
+  return { ...baseMetadata, other: { ...baseMetadata.other, ...verify } };
+}
+
+const baseMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteName,
