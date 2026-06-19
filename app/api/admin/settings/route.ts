@@ -47,6 +47,9 @@ export async function PUT(req: Request) {
   if (Array.isArray(body?.adsSlots)) {
     patch.adsSlots = body.adsSlots.filter((s: unknown) => typeof s === "string");
   }
+  if (typeof body?.feedEnabled === "boolean") {
+    patch.feedEnabled = body.feedEnabled;
+  }
   const saved = await updateSettings(patch);
   return NextResponse.json(saved);
 }

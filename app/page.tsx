@@ -116,7 +116,7 @@ export default async function HomePage() {
         </nav>
         <nav className="absolute right-4 top-4 z-10 flex flex-col items-end gap-2 sm:right-6 sm:top-6">
           {losersChip}
-          {feedChip}
+          {s.feedEnabled ? feedChip : null}
         </nav>
 
         <section className="flex flex-1 flex-col items-center justify-center py-28 text-center">
@@ -201,7 +201,7 @@ export default async function HomePage() {
         <header className="flex items-center justify-between gap-4 px-10 py-5 xl:px-16">
           {accountChip}
           <div className="flex items-center gap-3">
-            {feedChip}
+            {s.feedEnabled ? feedChip : null}
             {losersChip}
           </div>
         </header>

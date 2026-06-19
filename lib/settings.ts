@@ -28,6 +28,9 @@ export interface SiteSettings {
   wallSub: string;
   wallEmpty: string;
   footerThreat: string;
+  /** Master switch for the ad/money page: shows the FEED ME button + /feed when
+   *  on; hides the button and makes /feed redirect home when off. */
+  feedEnabled: boolean;
   /** Label for the nav button that leads to the ad/money page. */
   adsNavLabel: string;
   adsHeading: string;
@@ -61,6 +64,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   wallSub: "you're on the list now ♡",
   wallEmpty: "no one's been brave enough… give it time :3",
   footerThreat: "I know what you did",
+  feedEnabled: false,
   adsNavLabel: "feed me ▸",
   adsHeading: "Pay with your eyes",
   adsSub: "every ad you stare at pays me. keep scrolling, good boy ♡",

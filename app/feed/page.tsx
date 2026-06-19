@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
 import FeedExperience from "@/components/FeedExperience";
@@ -22,6 +23,8 @@ export const dynamic = "force-dynamic";
 
 export default async function FeedPage() {
   const s = await getSettings();
+  // When the ad page is switched off, it doesn't exist as far as visitors go.
+  if (!s.feedEnabled) redirect("/");
 
   return (
     <main className="min-h-screen">

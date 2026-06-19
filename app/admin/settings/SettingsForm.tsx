@@ -135,6 +135,22 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
 
       <section className="card space-y-4 p-6">
         <h2 className="hud text-accent">ads / money page</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.feedEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, feedEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">Show the FEED ME button + ad page.</strong>{" "}
+            Turn this off to remove it from the site entirely (the button
+            disappears and <code>/feed</code> redirects home). Turn it back on
+            when you have a good ad network.
+          </span>
+        </label>
         <Field
           label="Nav button label"
           hint="The button shown on the home page that leads to the ad page."
