@@ -299,6 +299,29 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
       </section>
 
       <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">chat / dm</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.chatEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, chatEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">Show the &quot;message me&quot; button + /chat page.</strong>{" "}
+            Visitors must sign in with X to message you; you read &amp; reply from
+            Admin → Inbox.
+          </span>
+        </label>
+        <Field label="Nav button label" value={form.chatNavLabel} onChange={set("chatNavLabel")} />
+        <Field label="Heading" value={form.chatHeading} onChange={set("chatHeading")} />
+        <Field label="Subtitle" value={form.chatSub} onChange={set("chatSub")} />
+        <Field label="Note" value={form.chatNote} onChange={set("chatNote")} />
+      </section>
+
+      <section className="card space-y-4 p-6">
         <h2 className="hud text-accent">search engines</h2>
         <div>
           <label className="label">Verification meta tags</label>

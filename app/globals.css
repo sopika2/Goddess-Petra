@@ -145,6 +145,14 @@ html:not([data-age="ok"]) body {
     box-shadow: 0 0 0 2px #fff;
   }
 
+  /* The chat chip — oxblood tile that flips to pink on hover. */
+  .btn-chat {
+    @apply inline-block -rotate-1 border-2 border-ink bg-[#7A1640] px-3 py-1.5
+      font-typewriter text-xs font-bold uppercase tracking-wide text-white
+      transition hover:rotate-0 hover:bg-accent hover:text-ink;
+    box-shadow: 0 0 0 2px #7a1640;
+  }
+
   /* Ad slot frame on the money page. */
   .ad-slot {
     @apply rounded-lg border border-dashed border-line bg-surface/50 p-4;

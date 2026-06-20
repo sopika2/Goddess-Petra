@@ -37,6 +37,10 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "gamesSub",
   "gamesNote",
   "wheelForced",
+  "chatNavLabel",
+  "chatHeading",
+  "chatSub",
+  "chatNote",
 ];
 
 export async function PUT(req: Request) {
@@ -65,6 +69,9 @@ export async function PUT(req: Request) {
   }
   if (typeof body?.gamesEnabled === "boolean") {
     patch.gamesEnabled = body.gamesEnabled;
+  }
+  if (typeof body?.chatEnabled === "boolean") {
+    patch.chatEnabled = body.chatEnabled;
   }
   if (typeof body?.adsFeedCooldownSeconds === "number" && isFinite(body.adsFeedCooldownSeconds)) {
     patch.adsFeedCooldownSeconds = Math.max(5, Math.min(86400, Math.floor(body.adsFeedCooldownSeconds)));

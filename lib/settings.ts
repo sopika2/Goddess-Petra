@@ -65,6 +65,13 @@ export interface SiteSettings {
   /** Force EVERY spin to this segment (exact label; blank = off). Per-account
    *  rigging (with a per-account count) is managed on the admin Games page. */
   wheelForced: string;
+  /** Chat/DM master switch (shows the "message me" button + /chat when on).
+   *  Visitors must sign in with X; you reply from Admin → Inbox. */
+  chatEnabled: boolean;
+  chatNavLabel: string;
+  chatHeading: string;
+  chatSub: string;
+  chatNote: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -115,6 +122,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     "drain — spin again",
   ],
   wheelForced: "",
+  chatEnabled: false,
+  chatNavLabel: "message me ▸",
+  chatHeading: "Talk to me",
+  chatSub: "say something, loser. i might even read it ♡",
+  chatNote: "every word is logged to your file. choose them carefully :3",
 };
 
 export async function getSettings(): Promise<SiteSettings> {
