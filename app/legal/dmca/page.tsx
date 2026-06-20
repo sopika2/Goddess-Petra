@@ -38,8 +38,7 @@ export default async function Page() {
       <p className="mt-3 text-sm leading-relaxed text-muted">
         If you are featured on this Site and want your content taken down — for
         any reason — email {mail} with a link to the page and a way to confirm
-        your identity. We will remove verified requests promptly, no questions
-        asked.
+        your identity.
       </p>
 
       <h2 className="mt-8 font-display text-xl text-white">

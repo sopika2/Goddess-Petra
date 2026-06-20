@@ -16,10 +16,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     profiles = [];
   }
   let feedEnabled = false;
+  let gamesEnabled = false;
   try {
-    feedEnabled = (await getSettings()).feedEnabled;
+    const s = await getSettings();
+    feedEnabled = s.feedEnabled;
+    gamesEnabled = s.gamesEnabled;
   } catch {
     feedEnabled = false;
+    gamesEnabled = false;
   }
 
   return [
@@ -35,6 +39,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? [
           {
             url: `${siteUrl}/feed`,
+            lastModified: now,
+            changeFrequency: "weekly" as const,
+            priority: 0.6,
+          },
+        ]
+      : []),
+    ...(gamesEnabled
+      ? [
+          {
+            url: `${siteUrl}/games`,
             lastModified: now,
             changeFrequency: "weekly" as const,
             priority: 0.6,

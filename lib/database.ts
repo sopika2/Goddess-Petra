@@ -99,6 +99,19 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     data LONGTEXT
   ) ENGINE=InnoDB`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS game_rolls (
+    id CHAR(36) PRIMARY KEY,
+    ts VARCHAR(40) NOT NULL,
+    game VARCHAR(16) NOT NULL DEFAULT '',
+    user_id VARCHAR(40) NOT NULL DEFAULT '',
+    username VARCHAR(40) NOT NULL DEFAULT '',
+    name VARCHAR(120) NOT NULL DEFAULT '',
+    result VARCHAR(160) NOT NULL DEFAULT '',
+    rigged TINYINT(1) NOT NULL DEFAULT 0,
+    ip VARCHAR(64) NOT NULL DEFAULT '',
+    INDEX (ts), INDEX (game), INDEX (username)
+  ) ENGINE=InnoDB`);
+
   await ensureColumns(pool);
 }
 

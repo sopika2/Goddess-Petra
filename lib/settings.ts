@@ -54,6 +54,18 @@ export interface SiteSettings {
   /** Raw search-engine verification <meta> tags (Google/Bing/etc.), pasted as
    *  given. Rendered into the <head> on every page. */
   verificationTags: string;
+  /** Games page master switch (shows the games button + /games when on). */
+  gamesEnabled: boolean;
+  gamesNavLabel: string;
+  gamesHeading: string;
+  gamesSub: string;
+  gamesNote: string;
+  /** Wheel segments — the Throne gifts/tributes a spin can land on. */
+  wheelSegments: string[];
+  /** Force EVERY spin to this segment (exact label; blank = off). */
+  wheelForced: string;
+  /** Per-account rig: one rule per line, "username = segment label". */
+  wheelRig: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -89,6 +101,22 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   adsTxt: "",
   verificationTags:
     '<meta name="6a97888e-site-verification" content="4824922ed58595ceccc4ca8c0bcd5f06">',
+  gamesEnabled: false,
+  gamesNavLabel: "games ▸",
+  gamesHeading: "Spin for me",
+  gamesSub: "you can't win. you can only pay. spin, loser ♡",
+  gamesNote:
+    "every spin lands on a gift you owe me. the wheel decides — and i decide the wheel :3",
+  wheelSegments: [
+    "$5 tribute",
+    "$10 tribute",
+    "$20 tribute",
+    "$50 tribute",
+    "spoil me ☕",
+    "drain — spin again",
+  ],
+  wheelForced: "",
+  wheelRig: "",
 };
 
 export async function getSettings(): Promise<SiteSettings> {
@@ -115,6 +143,11 @@ export async function updateSettings(
   }
   if (patch.adsSlots && Array.isArray(patch.adsSlots)) {
     next.adsSlots = patch.adsSlots
+      .map((s) => String(s))
+      .filter((s) => s.trim().length > 0);
+  }
+  if (patch.wheelSegments && Array.isArray(patch.wheelSegments)) {
+    next.wheelSegments = patch.wheelSegments
       .map((s) => String(s))
       .filter((s) => s.trim().length > 0);
   }

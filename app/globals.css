@@ -137,6 +137,14 @@ html:not([data-age="ok"]) body {
     box-shadow: 0 0 0 2px #f4c400;
   }
 
+  /* The games chip — white "ransom" tile that flips to pink on hover. */
+  .btn-game {
+    @apply inline-block rotate-1 border-2 border-ink bg-white px-3 py-1.5
+      font-typewriter text-xs font-bold uppercase tracking-wide text-ink
+      transition hover:rotate-0 hover:bg-accent;
+    box-shadow: 0 0 0 2px #fff;
+  }
+
   /* Ad slot frame on the money page. */
   .ad-slot {
     @apply rounded-lg border border-dashed border-line bg-surface/50 p-4;

@@ -32,6 +32,12 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "adsFeedHead",
   "adsTxt",
   "verificationTags",
+  "gamesNavLabel",
+  "gamesHeading",
+  "gamesSub",
+  "gamesNote",
+  "wheelForced",
+  "wheelRig",
 ];
 
 export async function PUT(req: Request) {
@@ -50,8 +56,16 @@ export async function PUT(req: Request) {
   if (Array.isArray(body?.adsSlots)) {
     patch.adsSlots = body.adsSlots.filter((s: unknown) => typeof s === "string");
   }
+  if (Array.isArray(body?.wheelSegments)) {
+    patch.wheelSegments = body.wheelSegments.filter(
+      (s: unknown) => typeof s === "string",
+    );
+  }
   if (typeof body?.feedEnabled === "boolean") {
     patch.feedEnabled = body.feedEnabled;
+  }
+  if (typeof body?.gamesEnabled === "boolean") {
+    patch.gamesEnabled = body.gamesEnabled;
   }
   if (typeof body?.adsFeedCooldownSeconds === "number" && isFinite(body.adsFeedCooldownSeconds)) {
     patch.adsFeedCooldownSeconds = Math.max(5, Math.min(86400, Math.floor(body.adsFeedCooldownSeconds)));

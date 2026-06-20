@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteSettings } from "@/lib/settings";
 
-type FormState = Omit<SiteSettings, "bioLines" | "adsSlots"> & {
+type FormState = Omit<SiteSettings, "bioLines" | "adsSlots" | "wheelSegments"> & {
   bioText: string;
   adsSlotsText: string;
+  wheelSegmentsText: string;
 };
 
 // Ad embed blocks are edited as one textarea, blocks split by a line of "===".
@@ -48,6 +49,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
     ...initial,
     bioText: initial.bioLines.join("\n"),
     adsSlotsText: initial.adsSlots.join("\n===\n"),
+    wheelSegmentsText: initial.wheelSegments.join("\n"),
   });
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -61,11 +63,15 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
     setBusy(true);
     setSaved(false);
     setError(null);
-    const { bioText, adsSlotsText, ...rest } = form;
+    const { bioText, adsSlotsText, wheelSegmentsText, ...rest } = form;
     const payload = {
       ...rest,
       bioLines: bioText.split("\n").map((l) => l.trim()).filter(Boolean),
       adsSlots: splitSlots(adsSlotsText),
+      wheelSegments: wheelSegmentsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean),
     };
     try {
       const res = await fetch("/api/admin/settings", {
@@ -244,6 +250,65 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
             network gives you (e.g.{" "}
             <code>example.com, 12345, DIRECT, abc123</code>) — required before
             most networks will pay out.
+          </p>
+        </div>
+      </section>
+
+      <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">games / wheel</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.gamesEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, gamesEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">Show the games button + /games page.</strong>{" "}
+            Visitors must sign in with X to play; every roll is logged under
+            Admin → Games.
+          </span>
+        </label>
+        <Field label="Nav button label" value={form.gamesNavLabel} onChange={set("gamesNavLabel")} />
+        <Field label="Heading" value={form.gamesHeading} onChange={set("gamesHeading")} />
+        <Field label="Subtitle" value={form.gamesSub} onChange={set("gamesSub")} />
+        <Field label="Note" value={form.gamesNote} onChange={set("gamesNote")} />
+        <div>
+          <label className="label">Wheel segments (one per line)</label>
+          <textarea
+            className="input min-h-[120px] resize-y font-mono text-xs"
+            value={form.wheelSegmentsText}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, wheelSegmentsText: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            The Throne gifts/tributes a spin can land on — one per line. Keep them
+            short so they fit the wheel. Landing on one sends the loser to your
+            Throne to pay it.
+          </p>
+        </div>
+        <Field
+          label="Force EVERY spin to (exact segment)"
+          hint="Leave blank for random. Type a segment exactly to rig all spins to land there."
+          value={form.wheelForced}
+          onChange={set("wheelForced")}
+        />
+        <div>
+          <label className="label">Rig per account</label>
+          <textarea
+            className="input min-h-[90px] resize-y font-mono text-xs"
+            value={form.wheelRig}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, wheelRig: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            One rule per line: <code>username = segment</code> (e.g.{" "}
+            <code>some_loser = $50 tribute</code>). When that X account spins,
+            it&apos;s forced to that result. Overrides the global force above.
           </p>
         </div>
       </section>
