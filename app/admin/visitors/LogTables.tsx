@@ -16,9 +16,13 @@ function fmt(ts: string) {
 export default function LogTables({
   visits,
   logins,
+  showLogins = true,
+  showVisits = true,
 }: {
   visits: Visit[];
   logins: LoginEvent[];
+  showLogins?: boolean;
+  showVisits?: boolean;
 }) {
   const router = useRouter();
   const [sel, setSel] = useState<Selected>(null);
@@ -61,6 +65,8 @@ export default function LogTables({
   return (
     <>
       {/* X logins */}
+      {showLogins ? (
+      <>
       <h2 className="hud mt-8 text-accent">x logins ({logins.length})</h2>
       <div className="card mt-3 overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
@@ -127,26 +133,28 @@ export default function LogTables({
         </table>
       </div>
 
+      </>
+      ) : null}
+
       {/* Page visits */}
-      <h2 className="hud mt-10 text-accent">page visits ({visits.length})</h2>
+      {showVisits ? (
+      <>
+      <h2 className="hud mt-8 text-accent">recent visits ({visits.length})</h2>
       <div className="card mt-3 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[560px] text-left text-sm">
           <thead className="hud border-b border-line/60">
             <tr>
               <th className="p-3">ip</th>
-              <th className="p-3">country</th>
+              <th className="p-3">location</th>
               <th className="p-3">page</th>
-              <th className="p-3">browser</th>
-              <th className="p-3">os</th>
               <th className="p-3">device</th>
-              <th className="p-3">timezone</th>
               <th className="p-3">when</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line/60">
             {visits.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-4 text-muted">
+                <td colSpan={5} className="p-4 text-muted">
                   No matching visits.
                 </td>
               </tr>
@@ -165,18 +173,14 @@ export default function LogTables({
                     {v.ip}
                   </td>
                   <td className="whitespace-nowrap p-3 text-muted">
-                    {v.country || "—"}
+                    {[v.city, v.country].filter(Boolean).join(", ") || "—"}
                   </td>
                   <td className="p-3 text-white">{v.path}</td>
-                  <td className="whitespace-nowrap p-3 text-muted">
-                    {v.browser || "—"}
-                  </td>
-                  <td className="whitespace-nowrap p-3 text-muted">
-                    {v.os || "—"}
-                  </td>
-                  <td className="p-3 text-muted">{v.device || "—"}</td>
-                  <td className="whitespace-nowrap p-3 text-muted">
-                    {v.tz || "—"}
+                  <td className="p-3 text-muted">
+                    <span className="text-white/90">{v.browser || "—"}</span>
+                    <span className="hud block text-[9px]">
+                      {[v.os, v.device].filter(Boolean).join(" · ") || "—"}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap p-3 hud">{fmt(v.ts)}</td>
                 </tr>
@@ -188,6 +192,8 @@ export default function LogTables({
       <p className="mt-3 text-xs text-muted">
         Tap (or focus + Enter on) any row to see everything that came with it.
       </p>
+      </>
+      ) : null}
 
       {/* Detail popup */}
       {sel ? (

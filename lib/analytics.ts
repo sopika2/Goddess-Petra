@@ -377,3 +377,105 @@ export async function stats(): Promise<Stats> {
     uniqueLoginUsers: Number(lr.u) || 0,
   };
 }
+
+// ── analytics aggregates (the Visitors dashboard) ─────────────────────────
+
+/** One row per X account (collapses the repeated login events). */
+export interface AccountSummary {
+  twitterId: string;
+  username: string;
+  name: string;
+  image: string;
+  admin: boolean; // any login was authorized
+  logins: number;
+  ips: number;
+  firstSeen: string;
+  lastSeen: string;
+}
+
+export async function accountSummaries(limit = 200): Promise<AccountSummary[]> {
+  const pool = await db();
+  const [rows] = await pool.query(
+    `SELECT twitter_id,
+            MAX(twitter_username) username,
+            MAX(twitter_name) name,
+            MAX(twitter_image) image,
+            MAX(allowed) admin,
+            COUNT(*) logins,
+            COUNT(DISTINCT ip) ips,
+            MIN(ts) first_seen,
+            MAX(ts) last_seen
+     FROM logins
+     WHERE twitter_id <> ''
+     GROUP BY twitter_id
+     ORDER BY last_seen DESC
+     LIMIT ${clampInt(limit, 1, 2000)}`,
+  );
+  return (rows as any[]).map((r) => ({
+    twitterId: r.twitter_id,
+    username: r.username || "",
+    name: r.name || "",
+    image: r.image || "",
+    admin: Number(r.admin) === 1,
+    logins: Number(r.logins) || 0,
+    ips: Number(r.ips) || 0,
+    firstSeen: r.first_seen || "",
+    lastSeen: r.last_seen || "",
+  }));
+}
+
+export interface Breakdown {
+  label: string;
+  count: number;
+}
+
+async function group(sql: string): Promise<Breakdown[]> {
+  const pool = await db();
+  const [rows] = await pool.query(sql);
+  return (rows as any[]).map((r) => ({
+    label: String(r.label ?? ""),
+    count: Number(r.count) || 0,
+  }));
+}
+
+export const topCountries = (n = 8) =>
+  group(
+    `SELECT country AS label, COUNT(*) count FROM visits WHERE country <> ''
+     GROUP BY country ORDER BY count DESC LIMIT ${clampInt(n, 1, 50)}`,
+  );
+
+export const topPages = (n = 8) =>
+  group(
+    `SELECT path AS label, COUNT(*) count FROM visits WHERE path <> ''
+     GROUP BY path ORDER BY count DESC LIMIT ${clampInt(n, 1, 50)}`,
+  );
+
+export const deviceSplit = () =>
+  group(
+    `SELECT device AS label, COUNT(*) count FROM visits WHERE device <> ''
+     GROUP BY device ORDER BY count DESC LIMIT 6`,
+  );
+
+export const browserFamilies = (n = 6) =>
+  group(
+    `SELECT SUBSTRING_INDEX(browser, ' ', 1) AS label, COUNT(*) count
+     FROM visits WHERE browser <> ''
+     GROUP BY label ORDER BY count DESC LIMIT ${clampInt(n, 1, 50)}`,
+  );
+
+export interface DayCount {
+  day: string;
+  count: number;
+}
+
+/** Daily visit counts (oldest → newest) for the trend bars. */
+export async function visitsByDay(days = 14): Promise<DayCount[]> {
+  const pool = await db();
+  const [rows] = await pool.query(
+    `SELECT LEFT(ts, 10) AS day, COUNT(*) count FROM visits
+     GROUP BY day ORDER BY day DESC LIMIT ${clampInt(days, 1, 90)}`,
+  );
+  return (rows as any[])
+    .map((r) => ({ day: String(r.day), count: Number(r.count) || 0 }))
+    .reverse();
+}
