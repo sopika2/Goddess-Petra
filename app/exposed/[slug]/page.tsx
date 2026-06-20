@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProfile } from "@/lib/db";
+import { isVideoUrl } from "@/lib/format";
 import Gallery from "@/components/Gallery";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -96,14 +97,26 @@ export default async function ProfilePage({
       </header>
 
       <section className="flex flex-col items-center gap-6 text-center sm:flex-row sm:gap-8 sm:text-left">
-        <div className="h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-surface-2 shadow-glow sm:h-36 sm:w-36 lg:h-44 lg:w-44">
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-surface-2 shadow-glow sm:h-36 sm:w-36 lg:h-44 lg:w-44">
           {profile.thumbnail ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile.thumbnail}
-              alt={profile.name}
-              className="h-full w-full object-cover"
-            />
+            isVideoUrl(profile.thumbnail) ? (
+              <video
+                src={profile.thumbnail}
+                muted
+                loop
+                autoPlay
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.thumbnail}
+                alt={profile.name}
+                className="h-full w-full object-cover"
+              />
+            )
           ) : (
             <div className="flex h-full w-full items-center justify-center font-display text-5xl text-muted">
               {profile.name.charAt(0).toUpperCase()}

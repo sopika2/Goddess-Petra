@@ -9,9 +9,16 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/png": "png",
   "image/webp": "webp",
   "image/gif": "gif",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
 };
 
-const MAX_BYTES = 15 * 1024 * 1024; // 15 MB
+// 100 MB — the practical ceiling because the site runs behind a Cloudflare
+// tunnel, which caps request bodies at ~100 MB. Larger videos would need a
+// chunked/resumable upload (see plan: Parked). NOTE: the whole file is buffered
+// in memory here (admin-only, infrequent); streaming-to-disk is a future
+// optimization if uploads get large/frequent.
+const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
 
 export async function POST(req: Request) {
   if (!(await isAuthed())) {
@@ -38,7 +45,7 @@ export async function POST(req: Request) {
   const ext = EXT_BY_TYPE[upload.type];
   if (!ext) {
     return NextResponse.json(
-      { error: "Unsupported file type. Use JPG, PNG, WebP or GIF." },
+      { error: "Unsupported file type. Use JPG, PNG, WebP, GIF, MP4 or WebM." },
       { status: 400 },
     );
   }
@@ -46,7 +53,7 @@ export async function POST(req: Request) {
   const buf = Buffer.from(await upload.arrayBuffer());
   if (buf.length > MAX_BYTES) {
     return NextResponse.json(
-      { error: "File too large (max 15 MB)." },
+      { error: "File too large (max 100 MB)." },
       { status: 400 },
     );
   }

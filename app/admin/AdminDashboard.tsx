@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Profile } from "@/lib/types";
+import { isVideoUrl } from "@/lib/format";
 
 interface FormState {
   name: string;
@@ -230,12 +231,22 @@ export default function AdminDashboard({
           <div className="flex items-center gap-4">
             <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-2">
               {form.thumbnail ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={form.thumbnail}
-                  alt="thumbnail"
-                  className="h-full w-full object-cover"
-                />
+                isVideoUrl(form.thumbnail) ? (
+                  <video
+                    src={form.thumbnail}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={form.thumbnail}
+                    alt="thumbnail"
+                    className="h-full w-full object-cover"
+                  />
+                )
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-xs text-muted">
                   none
@@ -246,7 +257,7 @@ export default function AdminDashboard({
               {uploadingThumb ? "Uploading…" : "Upload thumbnail"}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/mp4,video/webm"
                 className="hidden"
                 onChange={onThumb}
                 disabled={uploadingThumb}
@@ -273,12 +284,22 @@ export default function AdminDashboard({
                 key={src + i}
                 className="group relative aspect-square overflow-hidden rounded-lg bg-surface-2"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={`gallery ${i + 1}`}
-                  className="h-full w-full object-cover"
-                />
+                {isVideoUrl(src) ? (
+                  <video
+                    src={src}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={src}
+                    alt={`gallery ${i + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                )}
                 <button
                   type="button"
                   onClick={() => removeGalleryImage(i)}
@@ -293,7 +314,7 @@ export default function AdminDashboard({
               {uploadingGallery ? "Uploading…" : "+ Add"}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/mp4,video/webm"
                 multiple
                 className="hidden"
                 onChange={onGallery}

@@ -16,3 +16,9 @@ export function sanitizeHandle(input: string): string {
   s = s.replace(/[^A-Za-z0-9_]/g, "");
   return s.slice(0, 15);
 }
+
+/** True if a media URL points at a video we serve (mp4/webm), so renderers can
+ *  branch to a <video> element instead of <img>. */
+export function isVideoUrl(url: string): boolean {
+  return /\.(mp4|webm)$/i.test(url || "");
+}
