@@ -62,10 +62,9 @@ export interface SiteSettings {
   gamesNote: string;
   /** Wheel segments — the Throne gifts/tributes a spin can land on. */
   wheelSegments: string[];
-  /** Force EVERY spin to this segment (exact label; blank = off). */
+  /** Force EVERY spin to this segment (exact label; blank = off). Per-account
+   *  rigging (with a per-account count) is managed on the admin Games page. */
   wheelForced: string;
-  /** Per-account rig: one rule per line, "username = segment label". */
-  wheelRig: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -116,7 +115,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     "drain — spin again",
   ],
   wheelForced: "",
-  wheelRig: "",
 };
 
 export async function getSettings(): Promise<SiteSettings> {

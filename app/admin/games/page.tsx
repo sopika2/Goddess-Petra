@@ -1,9 +1,17 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { isAuthed } from "@/lib/auth";
-import { listRolls, searchRolls, type GameRoll } from "@/lib/games";
+import {
+  listRolls,
+  searchRolls,
+  listAccounts,
+  listRigs,
+  type GameRoll,
+} from "@/lib/games";
+import { getSettings } from "@/lib/settings";
 import AdminNav from "../AdminNav";
 import AutoRefresh from "../visitors/AutoRefresh";
+import RigManager, { type RigAccount } from "./RigManager";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +34,26 @@ export default async function GamesAdminPage({
     rolls = [];
   }
 
+  // Roster of every account that has signed in, with its current rig.
+  let accounts: RigAccount[] = [];
+  let segments: string[] = [];
+  try {
+    const [accts, rigs, s] = await Promise.all([
+      listAccounts(),
+      listRigs(),
+      getSettings(),
+    ]);
+    const rigMap = new Map(rigs.map((r) => [r.userId, r]));
+    segments = s.wheelSegments.filter(Boolean);
+    accounts = accts.map((a) => ({
+      ...a,
+      rigResult: rigMap.get(a.id)?.result || "",
+      rigRemaining: rigMap.get(a.id)?.remaining ?? 0,
+    }));
+  } catch {
+    accounts = [];
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
       <AdminNav active="Games" />
@@ -37,7 +65,15 @@ export default async function GamesAdminPage({
         <AutoRefresh seconds={10} />
       </div>
 
-      <form action="/admin/games" method="get" className="mt-6 flex flex-wrap items-center gap-2">
+      <h2 className="hud mt-8 text-accent">rig the wheel · all accounts</h2>
+      <p className="mt-1 text-xs text-muted">
+        Force a specific result for any signed-in account, for a set number of
+        spins (blank = forever). A per-account rig beats the global force in
+        Settings. Set the result to &quot;no rig&quot; to clear it.
+      </p>
+      <RigManager accounts={accounts} segments={segments} />
+
+      <form action="/admin/games" method="get" className="mt-10 flex flex-wrap items-center gap-2">
         <input
           name="q"
           defaultValue={q}

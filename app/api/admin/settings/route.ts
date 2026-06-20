@@ -37,7 +37,6 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "gamesSub",
   "gamesNote",
   "wheelForced",
-  "wheelRig",
 ];
 
 export async function PUT(req: Request) {

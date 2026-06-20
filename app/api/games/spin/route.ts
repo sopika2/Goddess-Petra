@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { readUserSession } from "@/lib/usersession";
 import { getSettings } from "@/lib/settings";
-import { logRoll, lastRollAt, pickResult, parseRig } from "@/lib/games";
+import {
+  logRoll,
+  lastRollAt,
+  pickResult,
+  getRig,
+  decrementRig,
+} from "@/lib/games";
 import { clientIp } from "@/lib/ip";
 
 // Decide a game outcome SERVER-SIDE: requires X login (so rolls tie to an
@@ -34,12 +40,28 @@ export async function POST(req: Request) {
   const game = body?.game === "roulette" ? "roulette" : "wheel";
 
   const segments = s.wheelSegments.map((x) => String(x)).filter(Boolean);
-  const { result, index, rigged } = pickResult({
-    segments,
-    forced: s.wheelForced,
-    rigMap: parseRig(s.wheelRig),
-    username: user.username,
-  });
+
+  // Per-account rig (with "how many times") wins; else global forced; else random.
+  let result: string;
+  let index: number;
+  let rigged: boolean;
+  const rig = await getRig(user.id);
+  if (rig && rig.remaining !== 0 && segments.includes(rig.result)) {
+    result = rig.result;
+    index = segments.indexOf(result);
+    rigged = true;
+    try {
+      await decrementRig(user.id);
+    } catch {
+      /* ignore */
+    }
+  } else {
+    ({ result, index, rigged } = pickResult({
+      segments,
+      forced: s.wheelForced,
+    }));
+  }
+
   if (index < 0) {
     return NextResponse.json(
       { error: "No wheel segments configured." },

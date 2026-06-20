@@ -112,6 +112,14 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     INDEX (ts), INDEX (game), INDEX (username)
   ) ENGINE=InnoDB`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS game_rigs (
+    user_id VARCHAR(40) PRIMARY KEY,
+    username VARCHAR(40) NOT NULL DEFAULT '',
+    result VARCHAR(160) NOT NULL DEFAULT '',
+    remaining INT NOT NULL DEFAULT 0,
+    updated_at VARCHAR(40) NOT NULL
+  ) ENGINE=InnoDB`);
+
   await ensureColumns(pool);
 }
 

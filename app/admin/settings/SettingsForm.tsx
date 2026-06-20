@@ -292,25 +292,10 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
         </div>
         <Field
           label="Force EVERY spin to (exact segment)"
-          hint="Leave blank for random. Type a segment exactly to rig all spins to land there."
+          hint="Leave blank for random. Type a segment exactly to rig all spins to land there. Per-account rigging (with a count) is on the Games page."
           value={form.wheelForced}
           onChange={set("wheelForced")}
         />
-        <div>
-          <label className="label">Rig per account</label>
-          <textarea
-            className="input min-h-[90px] resize-y font-mono text-xs"
-            value={form.wheelRig}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, wheelRig: e.target.value }))
-            }
-          />
-          <p className="mt-1 text-xs text-muted">
-            One rule per line: <code>username = segment</code> (e.g.{" "}
-            <code>some_loser = $50 tribute</code>). When that X account spins,
-            it&apos;s forced to that result. Overrides the global force above.
-          </p>
-        </div>
       </section>
 
       <section className="card space-y-4 p-6">
