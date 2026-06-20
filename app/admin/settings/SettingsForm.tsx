@@ -322,6 +322,30 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
       </section>
 
       <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">confessions</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.confessionsEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, confessionsEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">Show the &quot;confess&quot; button + /confessions wall.</strong>{" "}
+            Visitors sign in with X to confess; confessions post{" "}
+            <strong>anonymously only after you approve them</strong> in Admin →
+            Confessions (where you always see who really sent each one).
+          </span>
+        </label>
+        <Field label="Nav button label" value={form.confessNavLabel} onChange={set("confessNavLabel")} />
+        <Field label="Heading" value={form.confessHeading} onChange={set("confessHeading")} />
+        <Field label="Subtitle" value={form.confessSub} onChange={set("confessSub")} />
+        <Field label="Note" value={form.confessNote} onChange={set("confessNote")} />
+      </section>
+
+      <section className="card space-y-4 p-6">
         <h2 className="hud text-accent">search engines</h2>
         <div>
           <label className="label">Verification meta tags</label>

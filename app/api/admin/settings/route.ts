@@ -41,6 +41,10 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "chatHeading",
   "chatSub",
   "chatNote",
+  "confessNavLabel",
+  "confessHeading",
+  "confessSub",
+  "confessNote",
 ];
 
 export async function PUT(req: Request) {
@@ -72,6 +76,9 @@ export async function PUT(req: Request) {
   }
   if (typeof body?.chatEnabled === "boolean") {
     patch.chatEnabled = body.chatEnabled;
+  }
+  if (typeof body?.confessionsEnabled === "boolean") {
+    patch.confessionsEnabled = body.confessionsEnabled;
   }
   if (typeof body?.adsFeedCooldownSeconds === "number" && isFinite(body.adsFeedCooldownSeconds)) {
     patch.adsFeedCooldownSeconds = Math.max(5, Math.min(86400, Math.floor(body.adsFeedCooldownSeconds)));

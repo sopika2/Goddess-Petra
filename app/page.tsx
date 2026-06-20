@@ -129,6 +129,12 @@ export default async function HomePage() {
     </Link>
   );
 
+  const confessChip = (
+    <Link href="/confessions" className="btn-confess">
+      {s.confessNavLabel}
+    </Link>
+  );
+
   const xLink = handle ? (
     <a
       href={`https://x.com/${handle}`}
@@ -162,6 +168,7 @@ export default async function HomePage() {
         </nav>
         <nav className="absolute right-4 top-4 z-10 flex flex-col items-end gap-2 sm:right-6 sm:top-6">
           {losersChip}
+          {s.confessionsEnabled ? confessChip : null}
           {s.chatEnabled ? chatChip : null}
           {s.gamesEnabled ? gamesChip : null}
           {s.feedEnabled ? feedChip : null}
@@ -251,6 +258,7 @@ export default async function HomePage() {
         <header className="flex items-center justify-between gap-4 px-10 py-5 xl:px-16">
           {accountChip}
           <div className="flex items-center gap-3">
+            {s.confessionsEnabled ? confessChip : null}
             {s.chatEnabled ? chatChip : null}
             {s.gamesEnabled ? gamesChip : null}
             {s.feedEnabled ? (

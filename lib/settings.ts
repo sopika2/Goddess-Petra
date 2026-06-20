@@ -72,6 +72,14 @@ export interface SiteSettings {
   chatHeading: string;
   chatSub: string;
   chatNote: string;
+  /** Confessions master switch (shows the "confess" button + /confessions when
+   *  on). Visitors sign in with X; confessions post anonymously after you
+   *  approve them in Admin → Confessions. */
+  confessionsEnabled: boolean;
+  confessNavLabel: string;
+  confessHeading: string;
+  confessSub: string;
+  confessNote: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -127,6 +135,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   chatHeading: "Talk to me",
   chatSub: "say something, loser. i might even read it ♡",
   chatNote: "every word is logged to your file. choose them carefully :3",
+  confessionsEnabled: false,
+  confessNavLabel: "confess ▸",
+  confessHeading: "Confess to me",
+  confessSub: "spill it. i decide what the world gets to see ♡",
+  confessNote:
+    "posted anonymously — but only if i approve it, and i always know it was you :3",
 };
 
 export async function getSettings(): Promise<SiteSettings> {

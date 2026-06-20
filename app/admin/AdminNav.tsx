@@ -7,6 +7,7 @@ const ITEMS: [string, string][] = [
   ["Visitors", "/admin/visitors"],
   ["Games", "/admin/games"],
   ["Inbox", "/admin/inbox"],
+  ["Confessions", "/admin/confessions"],
   ["Settings", "/admin/settings"],
 ];
 

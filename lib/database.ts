@@ -134,6 +134,20 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     INDEX (user_id), INDEX (created_at)
   ) ENGINE=InnoDB`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS confessions (
+    id CHAR(36) PRIMARY KEY,
+    user_id VARCHAR(40) NOT NULL DEFAULT '',
+    username VARCHAR(40) NOT NULL DEFAULT '',
+    name VARCHAR(120) NOT NULL DEFAULT '',
+    image VARCHAR(300) NOT NULL DEFAULT '',
+    body VARCHAR(2000) NOT NULL DEFAULT '',
+    status VARCHAR(10) NOT NULL DEFAULT 'pending',
+    ip VARCHAR(64) NOT NULL DEFAULT '',
+    created_at VARCHAR(40) NOT NULL,
+    decided_at VARCHAR(40) NOT NULL DEFAULT '',
+    INDEX (status), INDEX (created_at), INDEX (user_id)
+  ) ENGINE=InnoDB`);
+
   await ensureColumns(pool);
 }
 
