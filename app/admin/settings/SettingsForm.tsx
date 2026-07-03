@@ -129,6 +129,12 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
         <Field label="Note" value={form.throneNote} onChange={set("throneNote")} />
         <Field label="Stamp" value={form.throneStamp} onChange={set("throneStamp")} />
         <Field label="Button label" value={form.throneButton} onChange={set("throneButton")} />
+        <Field
+          label="DM-fee callout"
+          hint="Small note by the Throne button (an arrow points at it) telling visitors the DM fee is paid on your Throne. Leave blank to hide it."
+          value={form.dmFeeNote}
+          onChange={set("dmFeeNote")}
+        />
         <Field label="Throne URL" value={form.throneUrl} onChange={set("throneUrl")} />
       </section>
 

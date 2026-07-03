@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
+import DmFeeCallout from "@/components/DmFeeCallout";
 import { getSettings, isSafeUrl } from "@/lib/settings";
 import { isAuthed } from "@/lib/auth";
 import { readUserSession } from "@/lib/usersession";
@@ -226,6 +227,7 @@ export default async function HomePage() {
             <p className="mt-3 font-hand text-2xl text-[#7a1640]">
               {s.throneNote}
             </p>
+            <DmFeeCallout note={s.dmFeeNote} />
             {throneSafe ? (
               <a
                 href={s.throneUrl}
@@ -304,6 +306,7 @@ export default async function HomePage() {
               <p className="mt-1 font-hand text-lg text-[#7a1640]">
                 {s.throneNote}
               </p>
+              <DmFeeCallout note={s.dmFeeNote} />
               {throneSafe ? (
                 <a
                   href={s.throneUrl}

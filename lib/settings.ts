@@ -24,6 +24,9 @@ export interface SiteSettings {
   throneNote: string;
   throneStamp: string;
   throneButton: string;
+  /** Small callout by the Throne button signalling the DM fee is paid there
+   *  (an arrow points at the tribute button). Blank = hidden. */
+  dmFeeNote: string;
   wallHeading: string;
   wallSub: string;
   wallEmpty: string;
@@ -96,7 +99,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   throneHeading: "The Throne ♛",
   throneNote: "pay up — it gets filed either way <3",
   throneStamp: "Owned",
-  throneButton: "Tribute the Throne ↗",
+  throneButton: "Pay up, loser ♡",
+  dmFeeNote: "psst — my DMs aren't free. pay your fee here ♡",
   wallHeading: "The Exposed Wall",
   wallSub: "you're on the list now ♡",
   wallEmpty: "no one's been brave enough… give it time :3",

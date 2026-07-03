@@ -19,6 +19,7 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "throneNote",
   "throneStamp",
   "throneButton",
+  "dmFeeNote",
   "wallHeading",
   "wallSub",
   "wallEmpty",
