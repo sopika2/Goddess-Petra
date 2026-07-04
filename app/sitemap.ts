@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { listProfiles } from "@/lib/db";
+import { listPublicProfiles } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  let profiles: Awaited<ReturnType<typeof listProfiles>> = [];
+  let profiles: Awaited<ReturnType<typeof listPublicProfiles>> = [];
   try {
-    profiles = await listProfiles();
+    profiles = await listPublicProfiles();
   } catch {
     profiles = [];
   }

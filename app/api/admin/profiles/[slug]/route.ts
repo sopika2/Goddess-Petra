@@ -25,6 +25,7 @@ export async function PUT(
   if (typeof body?.info === "string") patch.info = body.info;
   if (typeof body?.consentOnFile === "boolean")
     patch.consentOnFile = body.consentOnFile;
+  if (typeof body?.hidden === "boolean") patch.hidden = body.hidden;
   if (Array.isArray(body?.gallery))
     patch.gallery = body.gallery.filter((g: unknown) => typeof g === "string");
 

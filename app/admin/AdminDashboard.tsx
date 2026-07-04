@@ -142,6 +142,20 @@ export default function AdminDashboard({
     }
   }
 
+  async function toggleHidden(p: Profile) {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/profiles/${p.slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hidden: !p.hidden }),
+      });
+      if (res.ok) await reload();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function remove(slug: string) {
     if (!window.confirm("Delete this profile? This cannot be undone.")) return;
     setBusy(true);
@@ -378,7 +392,7 @@ export default function AdminDashboard({
           profiles.map((p) => (
             <div
               key={p.slug}
-              className="card flex items-center gap-4 p-3"
+              className={`card flex items-center gap-4 p-3 ${p.hidden ? "opacity-60" : ""}`}
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-surface-2">
                 {p.thumbnail ? (
@@ -391,13 +405,32 @@ export default function AdminDashboard({
                 ) : null}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{p.name}</p>
+                <p className="flex items-center gap-2 truncate font-medium">
+                  {p.name}
+                  {p.hidden ? (
+                    <span className="stamp shrink-0 border-blood text-blood">
+                      hidden
+                    </span>
+                  ) : null}
+                </p>
                 <p className="truncate text-xs text-muted">
                   /{p.slug} · {p.gallery.length} photo
                   {p.gallery.length === 1 ? "" : "s"}
                   {p.twitter ? ` · @${p.twitter}` : ""}
                 </p>
               </div>
+              <button
+                onClick={() => toggleHidden(p)}
+                disabled={busy}
+                className="text-xs text-muted hover:text-accent-soft"
+                title={
+                  p.hidden
+                    ? "Show on the public wall"
+                    : "Hide from the public wall (stays here)"
+                }
+              >
+                {p.hidden ? "Show" : "Hide"}
+              </button>
               <button
                 onClick={() => startEdit(p)}
                 className="text-xs text-muted hover:text-accent-soft"

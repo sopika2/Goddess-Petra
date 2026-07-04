@@ -15,6 +15,9 @@ export interface Profile {
   gallery: string[];
   /** Whether you have this person's consent on file. Required to publish. */
   consentOnFile: boolean;
+  /** Hidden from the public wall + search + detail page. Still visible to the
+   *  admin (in the dashboard and when previewing while logged in). */
+  hidden: boolean;
   /** ISO timestamp of creation */
   createdAt: string;
   /** ISO timestamp of last update */

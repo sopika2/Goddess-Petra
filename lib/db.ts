@@ -23,6 +23,7 @@ function rowToProfile(r: any): Profile {
     info: r.info ?? "",
     gallery: parseGallery(r.gallery),
     consentOnFile: r.consent_on_file === 1,
+    hidden: r.hidden === 1,
     createdAt: r.created_at ?? "",
     updatedAt: r.updated_at ?? "",
   };
@@ -37,10 +38,20 @@ export function slugify(input: string): string {
     .slice(0, 60);
 }
 
+/** All profiles, including hidden — admin only. */
 export async function listProfiles(): Promise<Profile[]> {
   const pool = await db();
   const [rows] = await pool.query(
     "SELECT * FROM profiles ORDER BY created_at DESC",
+  );
+  return (rows as any[]).map(rowToProfile);
+}
+
+/** Only visible profiles — for the public wall, sitemap, and detail pages. */
+export async function listPublicProfiles(): Promise<Profile[]> {
+  const pool = await db();
+  const [rows] = await pool.query(
+    "SELECT * FROM profiles WHERE hidden = 0 ORDER BY created_at DESC",
   );
   return (rows as any[]).map(rowToProfile);
 }
@@ -73,8 +84,8 @@ export async function createProfile(input: ProfileInput): Promise<Profile> {
   const now = new Date().toISOString();
   await pool.query(
     `INSERT INTO profiles
-      (slug, name, tagline, twitter, thumbnail, info, gallery, consent_on_file, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (slug, name, tagline, twitter, thumbnail, info, gallery, consent_on_file, hidden, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       slug,
       input.name,
@@ -84,6 +95,7 @@ export async function createProfile(input: ProfileInput): Promise<Profile> {
       input.info || "",
       JSON.stringify(input.gallery || []),
       input.consentOnFile ? 1 : 0,
+      input.hidden ? 1 : 0,
       now,
       now,
     ],
@@ -107,7 +119,7 @@ export async function updateProfile(
   await pool.query(
     `UPDATE profiles SET
        name = ?, tagline = ?, twitter = ?, thumbnail = ?, info = ?,
-       gallery = ?, consent_on_file = ?, updated_at = ?
+       gallery = ?, consent_on_file = ?, hidden = ?, updated_at = ?
      WHERE slug = ?`,
     [
       next.name,
@@ -117,6 +129,7 @@ export async function updateProfile(
       next.info,
       JSON.stringify(next.gallery),
       next.consentOnFile ? 1 : 0,
+      next.hidden ? 1 : 0,
       next.updatedAt,
       slug,
     ],

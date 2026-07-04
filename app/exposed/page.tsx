@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { listProfiles } from "@/lib/db";
+import { listPublicProfiles } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import ProfileBar from "@/components/ProfileBar";
 import ProfileCard from "@/components/ProfileCard";
@@ -24,9 +24,9 @@ export const dynamic = "force-dynamic";
 export default async function ExposedPage() {
   // Stay up (render the empty state) even if the DB is briefly unreachable —
   // this is a top indexed page, so it must not 500.
-  let profiles: Awaited<ReturnType<typeof listProfiles>> = [];
+  let profiles: Awaited<ReturnType<typeof listPublicProfiles>> = [];
   try {
-    profiles = await listProfiles();
+    profiles = await listPublicProfiles();
   } catch {
     profiles = [];
   }

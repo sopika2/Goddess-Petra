@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       ? body.gallery.filter((g: unknown) => typeof g === "string")
       : [],
     consentOnFile: true,
+    hidden: false,
   };
 
   const profile = await createProfile(input);

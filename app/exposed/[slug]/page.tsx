@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProfile } from "@/lib/db";
+import { isAuthed } from "@/lib/auth";
 import { isVideoUrl } from "@/lib/format";
 import Gallery from "@/components/Gallery";
 import SiteFooter from "@/components/SiteFooter";
@@ -19,6 +20,10 @@ export async function generateMetadata({
   const profile = await getProfile(slug);
   if (!profile) {
     return { title: "Not found", robots: { index: false, follow: false } };
+  }
+  // Hidden profiles are never indexed (and 404 for non-admins in the page).
+  if (profile.hidden) {
+    return { title: profile.name, robots: { index: false, follow: false } };
   }
   const description =
     (profile.info || `${profile.name} — exposed on the Wall.`)
@@ -51,6 +56,8 @@ export default async function ProfilePage({
   const { slug } = await params;
   const profile = await getProfile(slug);
   if (!profile) notFound();
+  // Hidden from the public — only the logged-in admin may view it.
+  if (profile.hidden && !(await isAuthed())) notFound();
 
   // Structured data so each exposed person is a searchable entity.
   const abs = (p: string) => {

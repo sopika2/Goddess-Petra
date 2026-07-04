@@ -31,6 +31,7 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     info TEXT,
     gallery LONGTEXT,
     consent_on_file TINYINT(1) NOT NULL DEFAULT 0,
+    hidden TINYINT(1) NOT NULL DEFAULT 0,
     created_at VARCHAR(40) NOT NULL,
     updated_at VARCHAR(40) NOT NULL,
     INDEX (created_at)
@@ -155,6 +156,9 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
 // already in them) gain these on startup. Definitions are also present in the
 // CREATE TABLE blocks above, so fresh installs never need the migration.
 const ADDED_COLUMNS: Record<string, Record<string, string>> = {
+  profiles: {
+    hidden: "TINYINT(1) NOT NULL DEFAULT 0",
+  },
   visits: {
     dpr: "VARCHAR(10) NOT NULL DEFAULT ''",
     cores: "VARCHAR(10) NOT NULL DEFAULT ''",
