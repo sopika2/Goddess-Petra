@@ -5,6 +5,7 @@ import DmFeeCallout from "@/components/DmFeeCallout";
 import { getSettings, isSafeUrl } from "@/lib/settings";
 import { isAuthed } from "@/lib/auth";
 import { readUserSession } from "@/lib/usersession";
+import { unreadForUser } from "@/lib/messages";
 import { renderWithRedactions } from "@/components/RichText";
 import FeedHint from "@/components/FeedHint";
 
@@ -27,6 +28,16 @@ export default async function HomePage() {
   const user = await readUserSession();
   const throneHost = s.throneUrl.replace(/^https?:\/\//, "");
   const throneSafe = isSafeUrl(s.throneUrl);
+
+  // Unread-reply badge on the chat chip (cosmetic — never break the page).
+  let chatUnread = 0;
+  if (user && s.chatEnabled) {
+    try {
+      chatUnread = await unreadForUser(user.id);
+    } catch {
+      /* ignore */
+    }
+  }
 
   // Structured data so search engines understand who/what this page is.
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -125,9 +136,16 @@ export default async function HomePage() {
   );
 
   const chatChip = (
-    <Link href="/chat" className="btn-chat">
-      {s.chatNavLabel}
-    </Link>
+    <span className="relative inline-flex">
+      <Link href="/chat" className="btn-chat">
+        {s.chatNavLabel}
+      </Link>
+      {chatUnread > 0 ? (
+        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-ink">
+          {chatUnread}
+        </span>
+      ) : null}
+    </span>
   );
 
   const confessChip = (

@@ -75,6 +75,22 @@ export interface SiteSettings {
   chatHeading: string;
   chatSub: string;
   chatNote: string;
+  /** Quick-reply chips in the admin inbox composer. */
+  chatQuickReplies: string[];
+  /** Tribute-sticker presets for the ♛ composer, one per line as
+   *  "label|https://throne.com/..." — each becomes a one-tap amount chip. */
+  tributePresets: string[];
+  /** Telegram bot pings when a sub messages. Blank = off.
+   *  Create a bot via @BotFather; get your chat id from @userinfobot. */
+  telegramBotToken: string;
+  telegramChatId: string;
+  /** Secret login key: opening /gate/<key> signs you in as admin — bookmark it
+   *  on your phone so notifications work there. Blank = off. Use something
+   *  long and random; anyone who has the link IS you. */
+  secretLoginKey: string;
+  /** Web-push VAPID keypair — auto-generated on first use, do not edit. */
+  vapidPublicKey: string;
+  vapidPrivateKey: string;
   /** Confessions master switch (shows the "confess" button + /confessions when
    *  on). Visitors sign in with X; confessions post anonymously after you
    *  approve them in Admin → Confessions. */
@@ -139,6 +155,21 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   chatHeading: "Talk to me",
   chatSub: "say something, loser. i might even read it ♡",
   chatNote: "every word is logged to your file. choose them carefully :3",
+  chatQuickReplies: ["pay first ♡", "beg better.", "cute. now tribute :3"],
+  tributePresets: [
+    "$5|https://throne.com/goddess_petra-x3/item/33afc218-a676-456f-ade4-526caa7d241f",
+    "$10|https://throne.com/goddess_petra-x3/item/2bc200a6-e267-4213-9c92-114fd3f0c6b0",
+    "$30|https://throne.com/goddess_petra-x3/item/55475f9d-7087-4d54-b4ca-191c090cd552",
+    "$50|https://throne.com/goddess_petra-x3/item/ce72a0b2-10e9-4e96-9b00-a596a4462d53",
+    "$100|https://throne.com/goddess_petra-x3/item/cd863dce-d101-4cfc-85dc-1301b4a9f7b2",
+    "$300|https://throne.com/goddess_petra-x3/item/4005f713-745c-49ad-824e-79dcff6bb80c",
+    "$500|https://throne.com/goddess_petra-x3/item/fdc124bc-34e1-42a5-9d00-b0691ed2b9ce",
+  ],
+  telegramBotToken: "",
+  telegramChatId: "",
+  secretLoginKey: "",
+  vapidPublicKey: "",
+  vapidPrivateKey: "",
   confessionsEnabled: false,
   confessNavLabel: "confess ▸",
   confessHeading: "Confess to me",
@@ -176,6 +207,16 @@ export async function updateSettings(
   }
   if (patch.wheelSegments && Array.isArray(patch.wheelSegments)) {
     next.wheelSegments = patch.wheelSegments
+      .map((s) => String(s))
+      .filter((s) => s.trim().length > 0);
+  }
+  if (patch.chatQuickReplies && Array.isArray(patch.chatQuickReplies)) {
+    next.chatQuickReplies = patch.chatQuickReplies
+      .map((s) => String(s))
+      .filter((s) => s.trim().length > 0);
+  }
+  if (patch.tributePresets && Array.isArray(patch.tributePresets)) {
+    next.tributePresets = patch.tributePresets
       .map((s) => String(s))
       .filter((s) => s.trim().length > 0);
   }

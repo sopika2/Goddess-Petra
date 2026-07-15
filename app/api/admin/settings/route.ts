@@ -42,6 +42,9 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "chatHeading",
   "chatSub",
   "chatNote",
+  "telegramBotToken",
+  "telegramChatId",
+  "secretLoginKey",
   "confessNavLabel",
   "confessHeading",
   "confessSub",
@@ -66,6 +69,16 @@ export async function PUT(req: Request) {
   }
   if (Array.isArray(body?.wheelSegments)) {
     patch.wheelSegments = body.wheelSegments.filter(
+      (s: unknown) => typeof s === "string",
+    );
+  }
+  if (Array.isArray(body?.chatQuickReplies)) {
+    patch.chatQuickReplies = body.chatQuickReplies.filter(
+      (s: unknown) => typeof s === "string",
+    );
+  }
+  if (Array.isArray(body?.tributePresets)) {
+    patch.tributePresets = body.tributePresets.filter(
       (s: unknown) => typeof s === "string",
     );
   }

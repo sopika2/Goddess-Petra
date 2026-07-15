@@ -4,10 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteSettings } from "@/lib/settings";
 
-type FormState = Omit<SiteSettings, "bioLines" | "adsSlots" | "wheelSegments"> & {
+type FormState = Omit<
+  SiteSettings,
+  "bioLines" | "adsSlots" | "wheelSegments" | "chatQuickReplies" | "tributePresets"
+> & {
   bioText: string;
   adsSlotsText: string;
   wheelSegmentsText: string;
+  chatQuickRepliesText: string;
+  tributePresetsText: string;
 };
 
 // Ad embed blocks are edited as one textarea, blocks split by a line of "===".
@@ -50,6 +55,8 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
     bioText: initial.bioLines.join("\n"),
     adsSlotsText: initial.adsSlots.join("\n===\n"),
     wheelSegmentsText: initial.wheelSegments.join("\n"),
+    chatQuickRepliesText: initial.chatQuickReplies.join("\n"),
+    tributePresetsText: initial.tributePresets.join("\n"),
   });
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -63,12 +70,27 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
     setBusy(true);
     setSaved(false);
     setError(null);
-    const { bioText, adsSlotsText, wheelSegmentsText, ...rest } = form;
+    const {
+      bioText,
+      adsSlotsText,
+      wheelSegmentsText,
+      chatQuickRepliesText,
+      tributePresetsText,
+      ...rest
+    } = form;
     const payload = {
       ...rest,
       bioLines: bioText.split("\n").map((l) => l.trim()).filter(Boolean),
       adsSlots: splitSlots(adsSlotsText),
       wheelSegments: wheelSegmentsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean),
+      chatQuickReplies: chatQuickRepliesText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean),
+      tributePresets: tributePresetsText
         .split("\n")
         .map((l) => l.trim())
         .filter(Boolean),
@@ -325,6 +347,71 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
         <Field label="Heading" value={form.chatHeading} onChange={set("chatHeading")} />
         <Field label="Subtitle" value={form.chatSub} onChange={set("chatSub")} />
         <Field label="Note" value={form.chatNote} onChange={set("chatNote")} />
+
+        <div>
+          <label className="label">Quick replies (one per line)</label>
+          <textarea
+            className="input min-h-[80px] resize-y font-mono text-xs"
+            value={form.chatQuickRepliesText}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, chatQuickRepliesText: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            One-tap reply chips in your Inbox composer.
+          </p>
+        </div>
+        <div>
+          <label className="label">Tribute presets (one per line)</label>
+          <textarea
+            className="input min-h-[140px] resize-y font-mono text-xs"
+            value={form.tributePresetsText}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, tributePresetsText: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            One-tap amount chips for the ♛ tribute sticker in your Inbox. Format{" "}
+            <code>label|https://throne.com/...</code> — e.g.{" "}
+            <code>$50|https://throne.com/goddess_petra-x3/item/…</code>. Tapping
+            a chip fills the demand + link; the sub sees a &quot;pay up&quot;
+            card straight to that Throne item.
+          </p>
+        </div>
+      </section>
+
+      <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">phone access &amp; notifications</h2>
+        <Field
+          label="Secret login key"
+          hint={
+            form.secretLoginKey.trim().length >= 12
+              ? `Bookmark this on your phone: <your site>/gate/${form.secretLoginKey.trim()} — opening it signs you straight in. Anyone with the link IS you, so keep it private.`
+              : "Opening <your site>/gate/<key> signs you straight in — made for your phone. Needs 12+ characters; use something long and random (anyone with the link IS you). Blank = off."
+          }
+          value={form.secretLoginKey}
+          onChange={set("secretLoginKey")}
+        />
+        <p className="rounded-lg border border-line bg-surface-2 p-4 text-sm text-muted">
+          <strong className="text-white">Phone notifications:</strong> open your
+          secret login link on your phone, go to <code>Admin → Inbox</code> and
+          tap <strong>🔔 notify this device</strong>. You&apos;ll get a push the
+          moment a sub messages. Subs get the same button on{" "}
+          <code>/chat</code> for your replies. (iPhone needs the site added to
+          the Home Screen first; Android works right away.)
+        </p>
+        <Field
+          label="Telegram bot token (optional backup)"
+          hint="Create a bot with @BotFather on Telegram and paste its token. Blank = off."
+          value={form.telegramBotToken}
+          onChange={set("telegramBotToken")}
+        />
+        <Field
+          label="Telegram chat id"
+          hint="Your own chat id (ask @userinfobot). The bot pings you when a sub messages."
+          value={form.telegramChatId}
+          onChange={set("telegramChatId")}
+        />
       </section>
 
       <section className="card space-y-4 p-6">

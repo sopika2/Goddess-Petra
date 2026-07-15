@@ -15,6 +15,7 @@ import {
 } from "@/lib/twitter";
 import { logLogin } from "@/lib/analytics";
 import { clientIp } from "@/lib/ip";
+import { isXBlocked } from "@/lib/blocks";
 import { appUrl } from "@/lib/url";
 import {
   serializeUserSession,
@@ -110,6 +111,12 @@ export async function GET(req: NextRequest) {
     });
   } catch (e) {
     console.warn("[oauth] login audit write failed:", (e as Error).message);
+  }
+
+  // A banned X account never gets a session — treat the sign-in as if it
+  // failed. (The allow-listed admin can never be blocked.)
+  if (!allowed && (await isXBlocked(me.id).catch(() => false))) {
+    return bounceHome(req);
   }
 
   // Everyone who signs in gets a (non-privileged) user session so the site can

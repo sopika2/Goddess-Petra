@@ -1,9 +1,29 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Archivo_Black, Special_Elite, Caveat, Inter } from "next/font/google";
 import "./globals.css";
 import AgeGate from "@/components/AgeGate";
 import VisitLogger from "@/components/VisitLogger";
 import { getSettings } from "@/lib/settings";
+import { isIpBlocked, isXBlocked } from "@/lib/blocks";
+import { clientIp } from "@/lib/ip";
+import { readUserSession } from "@/lib/usersession";
+
+/** True when this request's IP or signed-in X account is banned. Fails open —
+ *  a DB hiccup must never wall off the whole site. */
+async function requestIsBanned(): Promise<boolean> {
+  try {
+    const h = await headers();
+    const user = await readUserSession();
+    const [ipBad, xBad] = await Promise.all([
+      isIpBlocked(clientIp(h)),
+      user ? isXBlocked(user.id) : Promise.resolve(false),
+    ]);
+    return ipBad || xBad;
+  } catch {
+    return false;
+  }
+}
 
 // Display = heavy grotesque for the ransom-note wordmark + headings.
 const display = Archivo_Black({
@@ -96,11 +116,13 @@ const baseMetadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const banned = await requestIsBanned();
+
   return (
     <html
       lang="en"
@@ -108,6 +130,22 @@ export default function RootLayout({
       className={`${display.variable} ${typewriter.variable} ${hand.variable} ${body.variable}`}
     >
       <body className="min-h-screen">
+        {banned ? (
+          // Banned IP / account: no site, no age gate, no tracking beacon —
+          // just a dead end. Everything else in the tree is skipped.
+          <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+            <p className="font-typewriter text-xs uppercase tracking-[0.3em] text-blood">
+              access revoked
+            </p>
+            <h1 className="mt-4 font-display text-4xl uppercase text-white sm:text-5xl">
+              you&apos;ve been filed away
+            </h1>
+            <p className="mt-4 font-hand text-2xl text-accent-soft">
+              don&apos;t come back ♡
+            </p>
+          </main>
+        ) : (
+          <>
         {/* Runs before paint: if already 18+-verified, mark the doc so the age
             gate is hidden instantly (no flash) via CSS. */}
         <script
@@ -138,6 +176,8 @@ export default function RootLayout({
         <AgeGate />
         <VisitLogger />
         {children}
+          </>
+        )}
       </body>
     </html>
   );

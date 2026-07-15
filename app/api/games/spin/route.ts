@@ -9,6 +9,7 @@ import {
   decrementRig,
 } from "@/lib/games";
 import { clientIp } from "@/lib/ip";
+import { isRequestBlocked } from "@/lib/blocks";
 
 // Decide a game outcome SERVER-SIDE: requires X login (so rolls tie to an
 // account), honors the admin rig, logs the roll, and returns the result for the
@@ -25,6 +26,9 @@ export async function POST(req: Request) {
   const s = await getSettings();
   if (!s.gamesEnabled) {
     return NextResponse.json({ error: "Games are off." }, { status: 403 });
+  }
+  if (await isRequestBlocked(req.headers, user.id)) {
+    return NextResponse.json({ error: "no." }, { status: 403 });
   }
 
   // Light rate-limit: 1 spin / 2s per account (stops log spam).

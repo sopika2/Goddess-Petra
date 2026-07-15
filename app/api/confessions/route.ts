@@ -3,6 +3,7 @@ import { readUserSession } from "@/lib/usersession";
 import { getSettings } from "@/lib/settings";
 import { createConfession, lastConfessionAt } from "@/lib/confessions";
 import { clientIp } from "@/lib/ip";
+import { isRequestBlocked } from "@/lib/blocks";
 
 // Submit a confession (X-login required). It's stored as PENDING and only goes
 // public after the admin approves it. The public never sees who sent it.
@@ -17,6 +18,9 @@ export async function POST(req: Request) {
   const s = await getSettings();
   if (!s.confessionsEnabled) {
     return NextResponse.json({ error: "Confessions are off." }, { status: 403 });
+  }
+  if (await isRequestBlocked(req.headers, user.id)) {
+    return NextResponse.json({ error: "no." }, { status: 403 });
   }
 
   // Light rate-limit: 1 confession / 20s per account.

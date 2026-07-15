@@ -26,6 +26,7 @@ import AdminNav from "../AdminNav";
 import SearchBox from "./SearchBox";
 import LogTables from "./LogTables";
 import AutoRefresh from "./AutoRefresh";
+import BlockButton from "./BlockButton";
 
 export const dynamic = "force-dynamic";
 
@@ -262,6 +263,19 @@ export default async function VisitorsPage({
               {focus.lines.map((line, i) => (
                 <p key={i}>{line}</p>
               ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {ip ? (
+                <BlockButton kind="ip" value={ip} label={`ban IP ${ip}`} />
+              ) : null}
+              {handle && logins[0]?.twitterId ? (
+                <BlockButton
+                  kind="x"
+                  value={logins[0].twitterId}
+                  username={handle}
+                  label={`ban @${handle}`}
+                />
+              ) : null}
             </div>
           </div>
         ) : null}

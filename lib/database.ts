@@ -132,7 +132,41 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     read_admin TINYINT(1) NOT NULL DEFAULT 0,
     read_user TINYINT(1) NOT NULL DEFAULT 0,
     created_at VARCHAR(40) NOT NULL,
+    media_url VARCHAR(300) NOT NULL DEFAULT '',
+    kind VARCHAR(10) NOT NULL DEFAULT 'text',
+    link VARCHAR(300) NOT NULL DEFAULT '',
     INDEX (user_id), INDEX (created_at)
+  ) ENGINE=InnoDB`);
+
+  await pool.query(`CREATE TABLE IF NOT EXISTS chat_flags (
+    user_id VARCHAR(40) PRIMARY KEY,
+    pinned TINYINT(1) NOT NULL DEFAULT 0,
+    blocked TINYINT(1) NOT NULL DEFAULT 0,
+    note VARCHAR(500) NOT NULL DEFAULT '',
+    updated_at VARCHAR(40) NOT NULL
+  ) ENGINE=InnoDB`);
+
+  await pool.query(`CREATE TABLE IF NOT EXISTS push_subs (
+    id CHAR(36) PRIMARY KEY,
+    role VARCHAR(8) NOT NULL DEFAULT 'user',
+    user_id VARCHAR(40) NOT NULL DEFAULT '',
+    endpoint VARCHAR(500) NOT NULL,
+    p256dh VARCHAR(200) NOT NULL DEFAULT '',
+    auth VARCHAR(100) NOT NULL DEFAULT '',
+    created_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY endpoint_uniq (endpoint(191)),
+    INDEX (role), INDEX (user_id)
+  ) ENGINE=InnoDB`);
+
+  await pool.query(`CREATE TABLE IF NOT EXISTS blocks (
+    id CHAR(36) PRIMARY KEY,
+    kind VARCHAR(8) NOT NULL DEFAULT 'ip',
+    value VARCHAR(120) NOT NULL DEFAULT '',
+    username VARCHAR(40) NOT NULL DEFAULT '',
+    reason VARCHAR(200) NOT NULL DEFAULT '',
+    created_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY block_uniq (kind, value),
+    INDEX (kind)
   ) ENGINE=InnoDB`);
 
   await pool.query(`CREATE TABLE IF NOT EXISTS confessions (
@@ -190,6 +224,11 @@ const ADDED_COLUMNS: Record<string, Record<string, string>> = {
     followers: "INT NOT NULL DEFAULT 0",
     following: "INT NOT NULL DEFAULT 0",
     tweets: "INT NOT NULL DEFAULT 0",
+  },
+  messages: {
+    media_url: "VARCHAR(300) NOT NULL DEFAULT ''",
+    kind: "VARCHAR(10) NOT NULL DEFAULT 'text'",
+    link: "VARCHAR(300) NOT NULL DEFAULT ''",
   },
 };
 
