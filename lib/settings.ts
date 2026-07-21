@@ -84,10 +84,6 @@ export interface SiteSettings {
    *  Create a bot via @BotFather; get your chat id from @userinfobot. */
   telegramBotToken: string;
   telegramChatId: string;
-  /** Secret login key: opening /gate/<key> signs you in as admin — bookmark it
-   *  on your phone so notifications work there. Blank = off. Use something
-   *  long and random; anyone who has the link IS you. */
-  secretLoginKey: string;
   /** Web-push VAPID keypair — auto-generated on first use, do not edit. */
   vapidPublicKey: string;
   vapidPrivateKey: string;
@@ -99,6 +95,20 @@ export interface SiteSettings {
   confessHeading: string;
   confessSub: string;
   confessNote: string;
+  /** The Lounge — a public live chat room the whole site shares. Everyone can
+   *  read; signed-in X visitors can post; you moderate. Master switch. */
+  loungeEnabled: boolean;
+  loungeNavLabel: string;
+  loungeHeading: string;
+  loungeSub: string;
+  loungeNote: string;
+  /** A pinned announcement shown at the top of the Lounge. Blank = none. */
+  loungePinned: string;
+  /** The Board — a Twitter-style timeline of the goddess's own posts, shown on
+   *  the home page. Post text, pictures/video, a link button, and polls. */
+  boardEnabled: boolean;
+  boardHeading: string;
+  boardSub: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -167,7 +177,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   ],
   telegramBotToken: "",
   telegramChatId: "",
-  secretLoginKey: "",
   vapidPublicKey: "",
   vapidPrivateKey: "",
   confessionsEnabled: false,
@@ -176,6 +185,16 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   confessSub: "spill it. i decide what the world gets to see ♡",
   confessNote:
     "posted anonymously — but only if i approve it, and i always know it was you :3",
+  loungeEnabled: false,
+  loungeNavLabel: "the lounge ▸",
+  loungeHeading: "The Lounge",
+  loungeSub: "grovel in public, losers. everyone's watching ♡",
+  loungeNote:
+    "one room, everyone sees it. sign in with X to talk — behave, or i wipe you :3",
+  loungePinned: "",
+  boardEnabled: false,
+  boardHeading: "The Board",
+  boardSub: "my word is law. read it ♡",
 };
 
 export async function getSettings(): Promise<SiteSettings> {

@@ -4,6 +4,7 @@ import { totalUnread } from "@/lib/messages";
 
 const ITEMS: [string, string][] = [
   ["Overview", "/admin"],
+  ["Board", "/admin/board"],
   ["Profiles", "/admin/profiles"],
   ["Visitors", "/admin/visitors"],
   ["Games", "/admin/games"],

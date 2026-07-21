@@ -169,6 +169,49 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     INDEX (kind)
   ) ENGINE=InnoDB`);
 
+  await pool.query(`CREATE TABLE IF NOT EXISTS room_messages (
+    id CHAR(36) PRIMARY KEY,
+    user_id VARCHAR(40) NOT NULL DEFAULT '',
+    username VARCHAR(40) NOT NULL DEFAULT '',
+    name VARCHAR(120) NOT NULL DEFAULT '',
+    image VARCHAR(300) NOT NULL DEFAULT '',
+    sender VARCHAR(8) NOT NULL DEFAULT 'user',
+    body VARCHAR(500) NOT NULL DEFAULT '',
+    hidden TINYINT(1) NOT NULL DEFAULT 0,
+    created_at VARCHAR(40) NOT NULL,
+    INDEX (created_at), INDEX (hidden)
+  ) ENGINE=InnoDB`);
+
+  // Home timeline — the goddess's own posts (text, media, a link button, polls).
+  await pool.query(`CREATE TABLE IF NOT EXISTS posts (
+    id CHAR(36) PRIMARY KEY,
+    body VARCHAR(2000) NOT NULL DEFAULT '',
+    media_url VARCHAR(300) NOT NULL DEFAULT '',
+    link_label VARCHAR(80) NOT NULL DEFAULT '',
+    link_url VARCHAR(300) NOT NULL DEFAULT '',
+    pinned TINYINT(1) NOT NULL DEFAULT 0,
+    created_at VARCHAR(40) NOT NULL,
+    INDEX (pinned), INDEX (created_at)
+  ) ENGINE=InnoDB`);
+
+  await pool.query(`CREATE TABLE IF NOT EXISTS poll_options (
+    id CHAR(36) PRIMARY KEY,
+    post_id CHAR(36) NOT NULL DEFAULT '',
+    label VARCHAR(120) NOT NULL DEFAULT '',
+    sort INT NOT NULL DEFAULT 0,
+    INDEX (post_id)
+  ) ENGINE=InnoDB`);
+
+  await pool.query(`CREATE TABLE IF NOT EXISTS poll_votes (
+    id CHAR(36) PRIMARY KEY,
+    post_id CHAR(36) NOT NULL DEFAULT '',
+    option_id CHAR(36) NOT NULL DEFAULT '',
+    user_id VARCHAR(40) NOT NULL DEFAULT '',
+    created_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY one_vote (post_id, user_id),
+    INDEX (option_id)
+  ) ENGINE=InnoDB`);
+
   await pool.query(`CREATE TABLE IF NOT EXISTS confessions (
     id CHAR(36) PRIMARY KEY,
     user_id VARCHAR(40) NOT NULL DEFAULT '',

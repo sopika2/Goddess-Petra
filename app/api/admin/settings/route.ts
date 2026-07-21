@@ -44,11 +44,17 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "chatNote",
   "telegramBotToken",
   "telegramChatId",
-  "secretLoginKey",
   "confessNavLabel",
   "confessHeading",
   "confessSub",
   "confessNote",
+  "loungeNavLabel",
+  "loungeHeading",
+  "loungeSub",
+  "loungeNote",
+  "loungePinned",
+  "boardHeading",
+  "boardSub",
 ];
 
 export async function PUT(req: Request) {
@@ -90,6 +96,12 @@ export async function PUT(req: Request) {
   }
   if (typeof body?.chatEnabled === "boolean") {
     patch.chatEnabled = body.chatEnabled;
+  }
+  if (typeof body?.loungeEnabled === "boolean") {
+    patch.loungeEnabled = body.loungeEnabled;
+  }
+  if (typeof body?.boardEnabled === "boolean") {
+    patch.boardEnabled = body.boardEnabled;
   }
   if (typeof body?.confessionsEnabled === "boolean") {
     patch.confessionsEnabled = body.confessionsEnabled;

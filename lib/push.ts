@@ -126,6 +126,21 @@ export function pushToAdmins(title: string, body: string, url: string): void {
   })();
 }
 
+/** Broadcast to every subscribed visitor ("she posted ♡"). Fire-and-forget. */
+export function pushToAllUsers(title: string, body: string, url: string): void {
+  void (async () => {
+    try {
+      const pool = await db();
+      const [rows] = await pool.query(
+        "SELECT endpoint, p256dh, auth FROM push_subs WHERE role = 'user'",
+      );
+      await send(rows as any[], { title, body, url });
+    } catch {
+      /* never let a ping break the site */
+    }
+  })();
+}
+
 /** Ping one sub's devices ("she answered ♡"). Fire-and-forget. */
 export function pushToUser(
   userId: string,

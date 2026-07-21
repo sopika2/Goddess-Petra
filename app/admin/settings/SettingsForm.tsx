@@ -381,21 +381,12 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
       </section>
 
       <section className="card space-y-4 p-6">
-        <h2 className="hud text-accent">phone access &amp; notifications</h2>
-        <Field
-          label="Secret login key"
-          hint={
-            form.secretLoginKey.trim().length >= 12
-              ? `Bookmark this on your phone: <your site>/gate/${form.secretLoginKey.trim()} — opening it signs you straight in. Anyone with the link IS you, so keep it private.`
-              : "Opening <your site>/gate/<key> signs you straight in — made for your phone. Needs 12+ characters; use something long and random (anyone with the link IS you). Blank = off."
-          }
-          value={form.secretLoginKey}
-          onChange={set("secretLoginKey")}
-        />
+        <h2 className="hud text-accent">phone notifications</h2>
         <p className="rounded-lg border border-line bg-surface-2 p-4 text-sm text-muted">
-          <strong className="text-white">Phone notifications:</strong> open your
-          secret login link on your phone, go to <code>Admin → Inbox</code> and
-          tap <strong>🔔 notify this device</strong>. You&apos;ll get a push the
+          <strong className="text-white">Get pinged on your phone:</strong> sign
+          in to the admin the normal way on your phone (Sign in with X, or the
+          password), go to <code>Admin → Inbox</code> and tap{" "}
+          <strong>🔔 notify this device</strong>. You&apos;ll get a push the
           moment a sub messages. Subs get the same button on{" "}
           <code>/chat</code> for your replies. (iPhone needs the site added to
           the Home Screen first; Android works right away.)
@@ -436,6 +427,64 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
         <Field label="Heading" value={form.confessHeading} onChange={set("confessHeading")} />
         <Field label="Subtitle" value={form.confessSub} onChange={set("confessSub")} />
         <Field label="Note" value={form.confessNote} onChange={set("confessNote")} />
+      </section>
+
+      <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">the lounge (public live chat)</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.loungeEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, loungeEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">
+              Show the lounge button + /lounge room.
+            </strong>{" "}
+            One public chat room the whole site shares — <strong>everyone can
+            read it</strong>, signed-in X visitors can post, and you post as the
+            host. Hover any line to delete it. Banned and muted people can&apos;t
+            post.
+          </span>
+        </label>
+        <Field label="Nav button label" value={form.loungeNavLabel} onChange={set("loungeNavLabel")} />
+        <Field label="Heading" value={form.loungeHeading} onChange={set("loungeHeading")} />
+        <Field label="Subtitle" value={form.loungeSub} onChange={set("loungeSub")} />
+        <Field label="Note" value={form.loungeNote} onChange={set("loungeNote")} />
+        <Field
+          label="Pinned announcement"
+          hint="Shown pinned at the top of the room. Blank = nothing pinned."
+          value={form.loungePinned}
+          onChange={set("loungePinned")}
+        />
+      </section>
+
+      <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">the board (home timeline)</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.boardEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, boardEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">
+              Show your timeline on the home page.
+            </strong>{" "}
+            A Twitter-style feed of <strong>your</strong> posts — text, pictures
+            or video, a link button, and polls people vote on. Write and manage
+            posts in <strong>Admin → Board</strong>. It only appears once you
+            post something.
+          </span>
+        </label>
+        <Field label="Heading" value={form.boardHeading} onChange={set("boardHeading")} />
+        <Field label="Subtitle" value={form.boardSub} onChange={set("boardSub")} />
       </section>
 
       <section className="card space-y-4 p-6">

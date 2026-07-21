@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { isVideoUrl } from "@/lib/format";
 import PushToggle from "@/components/PushToggle";
 import { uploadMedia } from "@/components/uploadMedia";
+import TypingDots from "@/components/TypingDots";
 
 interface Msg {
   id: string;
@@ -29,10 +30,20 @@ export default function ChatBox() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [goddessTyping, setGoddessTyping] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const goddessCount = useRef(0);
   const baseTitle = useRef("");
+  const lastTypingPing = useRef(0);
+
+  // Tell the server I'm typing — at most once every 2.5s while I keep typing.
+  function pingTyping() {
+    const now = Date.now();
+    if (now - lastTypingPing.current < 2500) return;
+    lastTypingPing.current = now;
+    fetch("/api/chat/typing", { method: "POST" }).catch(() => {});
+  }
 
   const load = useCallback(async () => {
     try {
@@ -78,6 +89,23 @@ export default function ChatBox() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
+
+  // Poll whether the goddess is typing (light, pauses when tab hidden).
+  useEffect(() => {
+    const check = async () => {
+      if (document.hidden) return;
+      try {
+        const res = await fetch("/api/chat/typing", { cache: "no-store" });
+        if (!res.ok) return;
+        const d = await res.json();
+        setGoddessTyping(!!d.typing);
+      } catch {
+        /* ignore */
+      }
+    };
+    const t = setInterval(check, 2500);
+    return () => clearInterval(t);
+  }, []);
 
   async function upload(file: File) {
     setUploading(true);
@@ -221,6 +249,10 @@ export default function ChatBox() {
         <div ref={endRef} />
       </div>
 
+      <div className="h-4 px-4">
+        {goddessTyping ? <TypingDots label="goddess is typing…" /> : null}
+      </div>
+
       {blocked ? (
         <div className="border-t border-line/60 p-4 text-center">
           <p className="font-hand text-xl text-blood">
@@ -282,7 +314,10 @@ export default function ChatBox() {
               placeholder="say something, loser…"
               value={text}
               maxLength={2000}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                if (e.target.value.trim()) pingTyping();
+              }}
             />
             <button
               type="submit"

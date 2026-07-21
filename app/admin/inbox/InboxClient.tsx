@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isVideoUrl } from "@/lib/format";
 import { uploadMedia } from "@/components/uploadMedia";
+import TypingDots from "@/components/TypingDots";
 
 interface Convo {
   userId: string;
@@ -106,9 +107,28 @@ export default function InboxClient() {
   const [dossierOpen, setDossierOpen] = useState(false);
   const [noteDraft, setNoteDraft] = useState("");
   const [blockedNote, setBlockedNote] = useState<string | null>(null);
+  const [userTyping, setUserTyping] = useState(false);
+  // "pull this DM into a board post" panel
+  const [repostMsg, setRepostMsg] = useState<Msg | null>(null);
+  const [repostCaption, setRepostCaption] = useState("");
+  const [repostCredit, setRepostCredit] = useState(true);
+  const [repostBusy, setRepostBusy] = useState(false);
+  const [repostDone, setRepostDone] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const lastTypingPing = useRef(0);
   const selId = sel?.userId || null;
+
+  // Tell the sub I'm typing — throttled to once every 2.5s.
+  function pingTyping() {
+    if (!selId) return;
+    const now = Date.now();
+    if (now - lastTypingPing.current < 2500) return;
+    lastTypingPing.current = now;
+    fetch(`/api/admin/inbox/typing?userId=${encodeURIComponent(selId)}`, {
+      method: "POST",
+    }).catch(() => {});
+  }
 
   const loadConvos = useCallback(async () => {
     try {
@@ -190,6 +210,28 @@ export default function InboxClient() {
     endRef.current?.scrollIntoView();
   }, [thread.length]);
 
+  // Poll whether the selected sub is typing (light; only while a thread is open).
+  useEffect(() => {
+    if (!selId) return;
+    setUserTyping(false);
+    const check = async () => {
+      if (document.hidden) return;
+      try {
+        const res = await fetch(
+          `/api/admin/inbox/typing?userId=${encodeURIComponent(selId)}`,
+          { cache: "no-store" },
+        );
+        if (!res.ok) return;
+        const d = await res.json();
+        setUserTyping(!!d.typing);
+      } catch {
+        /* ignore */
+      }
+    };
+    const t = setInterval(check, 2500);
+    return () => clearInterval(t);
+  }, [selId]);
+
   function open(c: Convo) {
     setSel(c);
     setThread([]);
@@ -261,6 +303,43 @@ export default function InboxClient() {
       }
     } finally {
       setBusy(false);
+    }
+  }
+
+  function openRepost(m: Msg) {
+    setRepostMsg(m);
+    setRepostCaption(m.body || "");
+    setRepostCredit(m.sender === "user");
+    setRepostDone(null);
+  }
+
+  // Pull a DM straight onto the home Board — reuses the normal create-post
+  // endpoint with the message's media (a /media/... path it already validates).
+  async function submitRepost() {
+    if (!repostMsg || repostBusy || !sel) return;
+    const cap = repostCaption.trim();
+    const body = repostCredit
+      ? cap
+        ? `@${sel.username}: ${cap}`
+        : `@${sel.username} sent me this ♡`
+      : cap;
+    if (!body && !repostMsg.mediaUrl) return;
+    setRepostBusy(true);
+    setRepostDone(null);
+    try {
+      const res = await fetch("/api/admin/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body, mediaUrl: repostMsg.mediaUrl }),
+      });
+      if (res.ok) {
+        setRepostDone("posted to The Board ✓");
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setRepostDone(d.error || "failed");
+      }
+    } finally {
+      setRepostBusy(false);
     }
   }
 
@@ -363,56 +442,60 @@ export default function InboxClient() {
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-3 border-b border-line/60 p-3">
-              <Avatar src={sel.image} name={sel.name} size={32} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-accent">@{sel.username}</p>
-                <p className="hud text-[9px]">{sel.name}</p>
+            <div className="flex flex-col gap-2 border-b border-line/60 p-3 sm:flex-row sm:items-center">
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar src={sel.image} name={sel.name} size={32} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-accent">@{sel.username}</p>
+                  <p className="hud truncate text-[9px]">{sel.name}</p>
+                </div>
               </div>
-              <div className="flex rounded-full border border-line p-0.5">
-                {(["chat", "media"] as const).map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTab(t)}
-                    className={`rounded-full px-2.5 py-0.5 font-typewriter text-[10px] uppercase transition ${
-                      tab === t ? "bg-accent text-ink" : "text-muted hover:text-accent"
-                    }`}
-                  >
-                    {t}
-                    {t === "media" && threadMedia.length
-                      ? ` ${threadMedia.length}`
-                      : ""}
-                  </button>
-                ))}
+              <div className="flex flex-wrap items-center gap-1.5 sm:ml-auto">
+                <div className="flex rounded-full border border-line p-0.5">
+                  {(["chat", "media"] as const).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTab(t)}
+                      className={`rounded-full px-2.5 py-0.5 font-typewriter text-[10px] uppercase transition ${
+                        tab === t ? "bg-accent text-ink" : "text-muted hover:text-accent"
+                      }`}
+                    >
+                      {t}
+                      {t === "media" && threadMedia.length
+                        ? ` ${threadMedia.length}`
+                        : ""}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => saveFlags({ pinned: !flags?.pinned })}
+                  title={flags?.pinned ? "Unpin" : "Pin"}
+                  className={`rounded-full border px-2 py-1 font-typewriter text-[10px] uppercase transition ${
+                    flags?.pinned
+                      ? "border-accent text-accent"
+                      : "border-line text-muted hover:text-accent"
+                  }`}
+                >
+                  pin
+                </button>
+                <button
+                  onClick={() => saveFlags({ blocked: !flags?.blocked })}
+                  title={flags?.blocked ? "Unmute" : "Mute"}
+                  className={`rounded-full border px-2 py-1 font-typewriter text-[10px] uppercase transition ${
+                    flags?.blocked
+                      ? "border-blood bg-blood text-white"
+                      : "border-line text-muted hover:text-blood"
+                  }`}
+                >
+                  {flags?.blocked ? "muted" : "mute"}
+                </button>
+                <button
+                  onClick={() => setDossierOpen((v) => !v)}
+                  className="rounded-full border border-line px-2 py-1 font-typewriter text-[10px] uppercase text-muted transition hover:text-accent"
+                >
+                  dossier {dossierOpen ? "▸" : "◂"}
+                </button>
               </div>
-              <button
-                onClick={() => saveFlags({ pinned: !flags?.pinned })}
-                title={flags?.pinned ? "Unpin" : "Pin"}
-                className={`rounded-full border px-2 py-1 font-typewriter text-[10px] uppercase transition ${
-                  flags?.pinned
-                    ? "border-accent text-accent"
-                    : "border-line text-muted hover:text-accent"
-                }`}
-              >
-                pin
-              </button>
-              <button
-                onClick={() => saveFlags({ blocked: !flags?.blocked })}
-                title={flags?.blocked ? "Unmute" : "Mute"}
-                className={`rounded-full border px-2 py-1 font-typewriter text-[10px] uppercase transition ${
-                  flags?.blocked
-                    ? "border-blood bg-blood text-white"
-                    : "border-line text-muted hover:text-blood"
-                }`}
-              >
-                {flags?.blocked ? "muted" : "mute"}
-              </button>
-              <button
-                onClick={() => setDossierOpen((v) => !v)}
-                className="rounded-full border border-line px-2 py-1 font-typewriter text-[10px] uppercase text-muted transition hover:text-accent"
-              >
-                dossier {dossierOpen ? "▸" : "◂"}
-              </button>
             </div>
             {tab === "media" ? (
               <div className="flex-1 overflow-y-auto p-4">
@@ -500,6 +583,20 @@ export default function InboxClient() {
                       </div>
                     )}
                   </div>
+                  {m.kind !== "tribute" && (m.body || m.mediaUrl) ? (
+                    <div
+                      className={`mt-0.5 flex ${m.sender === "goddess" ? "justify-end" : "justify-start"}`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => openRepost(m)}
+                        title="Pull this into a post on your home Board"
+                        className="hud text-[9px] text-muted transition hover:text-accent"
+                      >
+                        → board
+                      </button>
+                    </div>
+                  ) : null}
                   {m.id === lastGoddessSeenId ? (
                     <p className="hud mt-0.5 text-right text-[9px] text-muted">
                       seen
@@ -514,6 +611,11 @@ export default function InboxClient() {
             {/* quick replies */}
             {tab === "chat" ? (
             <>
+            <div className="h-4 px-3">
+              {userTyping ? (
+                <TypingDots label={`@${sel.username} is typing…`} />
+              ) : null}
+            </div>
             {tributePresets.length > 0 && tribute ? (
               <div className="flex flex-wrap gap-1.5 border-t border-line/40 px-3 pt-2">
                 {tributePresets.map((p) => (
@@ -636,7 +738,10 @@ export default function InboxClient() {
                   placeholder={tribute ? "the demand, e.g. $20. now. ♡" : "reply…"}
                   value={text}
                   maxLength={2000}
-                  onChange={(e) => setText(e.target.value)}
+                  onChange={(e) => {
+                    setText(e.target.value);
+                    if (e.target.value.trim()) pingTyping();
+                  }}
                 />
                 <button
                   type="submit"
@@ -760,6 +865,78 @@ export default function InboxClient() {
               </section>
             </>
           )}
+        </div>
+      ) : null}
+
+      {/* pull-a-DM-into-a-post panel */}
+      {repostMsg && sel ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setRepostMsg(null)}
+        >
+          <div
+            className="card w-full max-w-md space-y-3 p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="hud text-accent">pull into a board post</h3>
+              <button
+                onClick={() => setRepostMsg(null)}
+                className="font-typewriter text-xs text-muted hover:text-accent"
+              >
+                ✕
+              </button>
+            </div>
+
+            {repostMsg.mediaUrl ? (
+              <div className="flex items-center gap-2">
+                {isVideoUrl(repostMsg.mediaUrl) ? (
+                  <video src={repostMsg.mediaUrl} className="h-16 rounded" />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={repostMsg.mediaUrl} alt="" className="h-16 rounded object-cover" />
+                )}
+                <span className="hud text-[9px]">their attachment goes on the post</span>
+              </div>
+            ) : null}
+
+            <textarea
+              className="input min-h-[80px] w-full resize-y text-sm"
+              placeholder="caption…"
+              value={repostCaption}
+              maxLength={2000}
+              onChange={(e) => setRepostCaption(e.target.value)}
+            />
+
+            <label className="flex items-center gap-2 font-typewriter text-xs text-muted">
+              <input
+                type="checkbox"
+                checked={repostCredit}
+                onChange={(e) => setRepostCredit(e.target.checked)}
+                className="h-4 w-4 accent-accent"
+              />
+              expose @{sel.username} (put their handle on it)
+            </label>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={submitRepost}
+                disabled={repostBusy}
+                className="btn-primary px-5 py-2 text-xs"
+              >
+                {repostBusy ? "…" : "Post to board"}
+              </button>
+              {repostDone ? (
+                <span className="font-typewriter text-xs text-accent">
+                  {repostDone}
+                </span>
+              ) : null}
+            </div>
+            <p className="hud text-[9px]">
+              it lands on your home Board (turn The Board on in Settings if it&apos;s off).
+            </p>
+          </div>
         </div>
       ) : null}
     </div>

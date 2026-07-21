@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
+import Timeline from "@/components/board/Timeline";
 import DmFeeCallout from "@/components/DmFeeCallout";
 import { getSettings, isSafeUrl } from "@/lib/settings";
 import { isAuthed } from "@/lib/auth";
@@ -154,6 +155,29 @@ export default async function HomePage() {
     </Link>
   );
 
+  const loungeChip = (
+    <Link href="/lounge" className="btn-chat">
+      {s.loungeNavLabel}
+    </Link>
+  );
+
+  // The home timeline of the goddess's posts (rendered before the footer in
+  // both the mobile and desktop layouts). Renders nothing until she posts.
+  const boardSection = s.boardEnabled ? (
+    <section className="px-6 pb-14 pt-4">
+      <div className="mx-auto mb-6 max-w-xl text-center">
+        <div className="tape mx-auto mb-5 h-2 w-40" />
+        <h2 className="font-display text-3xl uppercase sm:text-4xl">
+          {s.boardHeading}
+        </h2>
+        {s.boardSub ? (
+          <p className="mt-2 font-hand text-2xl text-accent-soft">{s.boardSub}</p>
+        ) : null}
+      </div>
+      <Timeline />
+    </section>
+  ) : null;
+
   const xLink = handle ? (
     <a
       href={`https://x.com/${handle}`}
@@ -187,14 +211,15 @@ export default async function HomePage() {
         </nav>
         <nav className="absolute right-4 top-4 z-10 flex flex-col items-end gap-2 sm:right-6 sm:top-6">
           {losersChip}
+          {s.loungeEnabled ? loungeChip : null}
           {s.confessionsEnabled ? confessChip : null}
           {s.chatEnabled ? chatChip : null}
           {s.gamesEnabled ? gamesChip : null}
           {s.feedEnabled ? feedChip : null}
         </nav>
 
-        <section className="flex flex-1 flex-col items-center justify-center py-28 text-center">
-          <div className="mb-8 h-36 w-36 overflow-hidden rounded-full border-2 border-white outline outline-4 outline-accent outline-offset-2 sm:h-44 sm:w-44">
+        <section className="flex flex-col items-center justify-center py-10 text-center">
+          <div className="mb-6 h-32 w-32 overflow-hidden rounded-full border-2 border-white outline outline-4 outline-accent outline-offset-2 sm:h-44 sm:w-44">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/goddess-petra.jpg"
@@ -214,20 +239,22 @@ export default async function HomePage() {
             ))}
           </h1>
 
-          <div className="mt-10 space-y-1 font-hand text-2xl leading-tight text-accent-soft sm:text-3xl">
+          <div className="mt-6 space-y-1 font-hand text-2xl leading-tight text-accent-soft sm:text-3xl">
             {bio("")}
           </div>
 
           {s.tagline ? (
-            <p className="mt-9">
+            <p className="mt-6">
               <span className="sticker-tag -rotate-2 font-display text-2xl normal-case sm:text-3xl">
                 {s.tagline}
               </span>
             </p>
           ) : null}
 
-          {xLink ? <div className="mt-9">{xLink}</div> : null}
+          {xLink ? <div className="mt-6">{xLink}</div> : null}
         </section>
+
+        {boardSection}
 
         <div className="tape -mx-6 h-2" />
 
@@ -278,6 +305,7 @@ export default async function HomePage() {
         <header className="flex items-center justify-between gap-4 px-10 py-5 xl:px-16">
           {accountChip}
           <div className="flex items-center gap-3">
+            {s.loungeEnabled ? loungeChip : null}
             {s.confessionsEnabled ? confessChip : null}
             {s.chatEnabled ? chatChip : null}
             {s.gamesEnabled ? gamesChip : null}
@@ -292,7 +320,7 @@ export default async function HomePage() {
         </header>
 
         {/* dossier body */}
-        <div className="grid flex-1 grid-cols-12 items-center gap-10 px-10 py-8 xl:gap-16 xl:px-20">
+        <div className="grid grid-cols-12 items-center gap-10 px-10 py-8 xl:gap-16 xl:px-20">
           {/* taped polaroid + a small tribute folder tucked into the file */}
           <div className="col-span-5 flex flex-col items-center gap-10">
             <div className="relative -rotate-3">
@@ -371,6 +399,8 @@ export default async function HomePage() {
             {xLink ? <div className="mt-8">{xLink}</div> : null}
           </div>
         </div>
+
+        {boardSection}
 
         {/* caution-tape band above the footer */}
         <div className="tape h-3" />
