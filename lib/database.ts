@@ -182,6 +182,22 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     INDEX (created_at), INDEX (hidden)
   ) ENGINE=InnoDB`);
 
+  // "Pets" — visitors who rebrand their X account as her property. The
+  // AUTO_INCREMENT column IS the pet number, so numbering is permanent and
+  // sequential in claim order.
+  await pool.query(`CREATE TABLE IF NOT EXISTS pets (
+    number INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(40) NOT NULL,
+    username VARCHAR(40) NOT NULL DEFAULT '',
+    name VARCHAR(120) NOT NULL DEFAULT '',
+    image VARCHAR(300) NOT NULL DEFAULT '',
+    verified TINYINT(1) NOT NULL DEFAULT 0,
+    claimed_at VARCHAR(40) NOT NULL,
+    verified_at VARCHAR(40) NOT NULL DEFAULT '',
+    UNIQUE KEY one_pet (user_id),
+    INDEX (verified)
+  ) ENGINE=InnoDB`);
+
   // Home timeline — the goddess's own posts (text, media, a link button, polls).
   await pool.query(`CREATE TABLE IF NOT EXISTS posts (
     id CHAR(36) PRIMARY KEY,

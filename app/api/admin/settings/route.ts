@@ -55,6 +55,12 @@ const STRING_KEYS: (keyof SiteSettings)[] = [
   "loungePinned",
   "boardHeading",
   "boardSub",
+  "petsNavLabel",
+  "petsHeading",
+  "petsSub",
+  "petsNote",
+  "petNameTemplate",
+  "petTweetTemplate",
 ];
 
 export async function PUT(req: Request) {
@@ -102,6 +108,9 @@ export async function PUT(req: Request) {
   }
   if (typeof body?.boardEnabled === "boolean") {
     patch.boardEnabled = body.boardEnabled;
+  }
+  if (typeof body?.petsEnabled === "boolean") {
+    patch.petsEnabled = body.petsEnabled;
   }
   if (typeof body?.confessionsEnabled === "boolean") {
     patch.confessionsEnabled = body.confessionsEnabled;

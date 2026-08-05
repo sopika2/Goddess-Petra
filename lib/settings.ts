@@ -109,6 +109,18 @@ export interface SiteSettings {
   boardEnabled: boolean;
   boardHeading: string;
   boardSub: string;
+  /** The Pet Pen — visitors claim a permanent pet number, rename their X
+   *  account to it, and post a declaration. Master switch. */
+  petsEnabled: boolean;
+  petsNavLabel: string;
+  petsHeading: string;
+  petsSub: string;
+  petsNote: string;
+  /** Display name they're told to set. {n} = their pet number. */
+  petNameTemplate: string;
+  /** The post they fire off. {n} pet number · {name} their new display name ·
+   *  {handle} your X handle · {url} the site link (unfurls with your picture). */
+  petTweetTemplate: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -195,6 +207,14 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   boardEnabled: false,
   boardHeading: "The Board",
   boardSub: "my word is law. read it ♡",
+  petsEnabled: false,
+  petsNavLabel: "become my pet ▸",
+  petsHeading: "The Pet Pen",
+  petsSub: "take your number and wear my name ♡",
+  petsNote:
+    "claim your number, put it on your X profile, and tell everyone what you are. i check :3",
+  petNameTemplate: "Goddess Petra's pet #{n}",
+  petTweetTemplate: "I want to lose to @{handle}\n\nI'm pet #{n} now ♡\n\n{url}",
 };
 
 export async function getSettings(): Promise<SiteSettings> {

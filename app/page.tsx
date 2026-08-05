@@ -161,6 +161,12 @@ export default async function HomePage() {
     </Link>
   );
 
+  const petsChip = (
+    <Link href="/pets" className="btn-loser">
+      {s.petsNavLabel}
+    </Link>
+  );
+
   // The home timeline of the goddess's posts (rendered before the footer in
   // both the mobile and desktop layouts). Renders nothing until she posts.
   const boardSection = s.boardEnabled ? (
@@ -211,6 +217,7 @@ export default async function HomePage() {
         </nav>
         <nav className="absolute right-4 top-4 z-10 flex flex-col items-end gap-2 sm:right-6 sm:top-6">
           {losersChip}
+          {s.petsEnabled ? petsChip : null}
           {s.loungeEnabled ? loungeChip : null}
           {s.confessionsEnabled ? confessChip : null}
           {s.chatEnabled ? chatChip : null}
@@ -305,6 +312,7 @@ export default async function HomePage() {
         <header className="flex items-center justify-between gap-4 px-10 py-5 xl:px-16">
           {accountChip}
           <div className="flex items-center gap-3">
+            {s.petsEnabled ? petsChip : null}
             {s.loungeEnabled ? loungeChip : null}
             {s.confessionsEnabled ? confessChip : null}
             {s.chatEnabled ? chatChip : null}

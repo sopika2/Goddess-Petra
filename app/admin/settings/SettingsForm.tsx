@@ -488,6 +488,56 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
       </section>
 
       <section className="card space-y-4 p-6">
+        <h2 className="hud text-accent">the pet pen (rebrand)</h2>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.petsEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, petsEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">Show the pet button + /pets page.</strong>{" "}
+            Visitors claim a permanent <strong>pet number</strong>, get told to
+            rename their X account to it, and get a one-tap button that posts
+            their declaration. The site <strong>checks their real X name</strong>{" "}
+            every time they sign in and marks them verified — you can&apos;t fake
+            it. (X gives nobody but the owner permission to rename an account, so
+            they paste it themselves.)
+          </span>
+        </label>
+        <Field label="Nav button label" value={form.petsNavLabel} onChange={set("petsNavLabel")} />
+        <Field label="Heading" value={form.petsHeading} onChange={set("petsHeading")} />
+        <Field label="Subtitle" value={form.petsSub} onChange={set("petsSub")} />
+        <Field label="Note" value={form.petsNote} onChange={set("petsNote")} />
+        <Field
+          label="Display name they must wear"
+          hint="{n} becomes their pet number. Keep it under 50 characters — X caps display names at 50."
+          value={form.petNameTemplate}
+          onChange={set("petNameTemplate")}
+        />
+        <div>
+          <label className="label">The post they fire off</label>
+          <textarea
+            className="input min-h-[110px] w-full resize-y font-mono text-xs"
+            value={form.petTweetTemplate}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, petTweetTemplate: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            Line breaks are kept. Placeholders: <code>{"{n}"}</code> pet number ·{" "}
+            <code>{"{name}"}</code> their new display name ·{" "}
+            <code>{"{handle}"}</code> your X handle · <code>{"{url}"}</code> your
+            site link. The link <strong>unfurls with your picture</strong> on X,
+            so the post shows an image without them attaching one.
+          </p>
+        </div>
+      </section>
+
+      <section className="card space-y-4 p-6">
         <h2 className="hud text-accent">search engines</h2>
         <div>
           <label className="label">Verification meta tags</label>

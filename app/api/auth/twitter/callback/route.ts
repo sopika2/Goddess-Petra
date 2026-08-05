@@ -16,6 +16,8 @@ import {
 import { logLogin } from "@/lib/analytics";
 import { clientIp } from "@/lib/ip";
 import { isXBlocked } from "@/lib/blocks";
+import { getSettings } from "@/lib/settings";
+import { getPet, syncVerification, petName } from "@/lib/pets";
 import { appUrl } from "@/lib/url";
 import {
   serializeUserSession,
@@ -111,6 +113,25 @@ export async function GET(req: NextRequest) {
     });
   } catch (e) {
     console.warn("[oauth] login audit write failed:", (e as Error).message);
+  }
+
+  // Pet check: if this account claimed a pet number, compare their live X
+  // display name against the one they were told to wear and record the result.
+  // This is the only way to confirm the rename — X's API can't set it for them.
+  try {
+    const pet = await getPet(me.id);
+    if (pet) {
+      const s = await getSettings();
+      await syncVerification({
+        userId: me.id,
+        username: me.username,
+        name: me.name,
+        image: me.profileImageUrl || "",
+        expectedName: petName(s.petNameTemplate, pet.number),
+      });
+    }
+  } catch (e) {
+    console.warn("[oauth] pet verification failed:", (e as Error).message);
   }
 
   // A banned X account never gets a session — treat the sign-in as if it

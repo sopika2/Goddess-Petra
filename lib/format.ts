@@ -22,3 +22,23 @@ export function sanitizeHandle(input: string): string {
 export function isVideoUrl(url: string): boolean {
   return /\.(mp4|webm)$/i.test(url || "");
 }
+
+/** Render a pet's required X display name, e.g. "Goddess Petra's pet #7". */
+export function petDisplayName(template: string, n: number): string {
+  return (template || "").replace(/\{n\}/g, String(n)).slice(0, 120);
+}
+
+/**
+ * Does a pet's live X display name carry the name they were told to wear?
+ * Lenient on purpose — X trims oddly and people wrap it in emoji — so we look
+ * for the expected name inside theirs rather than demanding equality. The
+ * trailing-digit guard stops pet #7 passing with "…pet #70".
+ */
+export function petNameMatches(live: string, expected: string): boolean {
+  const l = (live || "").toLowerCase();
+  const want = (expected || "").toLowerCase().trim();
+  if (!want) return false;
+  const at = l.indexOf(want);
+  if (at < 0) return false;
+  return !/[0-9]/.test(l.charAt(at + want.length));
+}
