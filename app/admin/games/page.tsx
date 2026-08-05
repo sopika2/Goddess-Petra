@@ -12,6 +12,7 @@ import { getSettings } from "@/lib/settings";
 import AdminNav from "../AdminNav";
 import AutoRefresh from "../visitors/AutoRefresh";
 import RigManager, { type RigAccount } from "./RigManager";
+import RewardUploader from "./RewardUploader";
 
 export const dynamic = "force-dynamic";
 
@@ -44,11 +45,19 @@ export default async function GamesAdminPage({
       getSettings(),
     ]);
     const rigMap = new Map(rigs.map((r) => [r.userId, r]));
-    segments = s.wheelSegments.filter(Boolean);
+    // Players only ever see the label, so the admin picker uses labels too.
+    // Deduped — a repeated prize means extra slices, not a second entry here.
+    segments = [
+      ...new Set(
+        s.wheelSegments.map((x) => String(x).split("|")[0].trim()).filter(Boolean),
+      ),
+    ];
     accounts = accts.map((a) => ({
       ...a,
       rigResult: rigMap.get(a.id)?.result || "",
       rigRemaining: rigMap.get(a.id)?.remaining ?? 0,
+      excluded: rigMap.get(a.id)?.excluded || [],
+      customSegments: rigMap.get(a.id)?.segments || [],
     }));
   } catch {
     accounts = [];
@@ -67,11 +76,20 @@ export default async function GamesAdminPage({
 
       <h2 className="hud mt-8 text-accent">rig the wheel · all accounts</h2>
       <p className="mt-1 text-xs text-muted">
-        Force a specific result for any signed-in account, for a set number of
-        spins (blank = forever). A per-account rig beats the global force in
-        Settings. Set the result to &quot;no rig&quot; to clear it.
+        <strong className="text-white">Force</strong> a result for any account
+        (for N spins, blank = forever), and/or <strong className="text-white">ban</strong>{" "}
+        segments they can never land on — they just never come up, and the
+        player is never told either way. A per-account force beats the global
+        one in Settings.
       </p>
       <RigManager accounts={accounts} segments={segments} />
+
+      <h2 className="hud mt-10 text-accent">reward media</h2>
+      <p className="mt-1 text-xs text-muted">
+        Upload a picture or video, then paste its link into a{" "}
+        <code>reward</code> segment in Settings so the wheel can hand it out.
+      </p>
+      <RewardUploader />
 
       <form action="/admin/games" method="get" className="mt-10 flex flex-wrap items-center gap-2">
         <input

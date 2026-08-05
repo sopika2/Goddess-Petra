@@ -68,6 +68,11 @@ export interface SiteSettings {
   /** Force EVERY spin to this segment (exact label; blank = off). Per-account
    *  rigging (with a per-account count) is managed on the admin Games page. */
   wheelForced: string;
+  /** Show the roulette table at all. Off = the wheel is the only game. */
+  rouletteEnabled: boolean;
+  /** Roulette: what a losing spin costs them, in whole currency units. Landing
+   *  the green zero costs 5×. Winning only buys mercy — never money. */
+  rouletteStake: number;
   /** Chat/DM master switch (shows the "message me" button + /chat when on).
    *  Visitors must sign in with X; you reply from Admin → Inbox. */
   chatEnabled: boolean;
@@ -172,6 +177,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     "drain — spin again",
   ],
   wheelForced: "",
+  rouletteEnabled: true,
+  rouletteStake: 10,
   chatEnabled: false,
   chatNavLabel: "message me ▸",
   chatHeading: "Talk to me",

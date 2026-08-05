@@ -11,6 +11,8 @@ export interface RigAccount {
   logins: number;
   rigResult: string;
   rigRemaining: number; // -1 unlimited, >0 count, 0 none
+  excluded: string[]; // segments this account can never land on
+  customSegments: string[]; // their own wheel; empty = the default one
 }
 
 function fmt(ts: string) {
@@ -29,8 +31,34 @@ function RigRow({
   const [times, setTimes] = useState(
     account.rigRemaining > 0 ? String(account.rigRemaining) : "",
   );
+  const [excluded, setExcluded] = useState<string[]>(account.excluded || []);
+  const [openBans, setOpenBans] = useState(false);
+  const [openWheel, setOpenWheel] = useState(false);
+  const [customText, setCustomText] = useState(
+    (account.customSegments || []).join("\n"),
+  );
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Pick from THEIR wheel when they have one, otherwise the default. Deduped:
+  // repeating a prize adds slices (more chances), but forcing and banning act
+  // on the prize itself, so it should only be listed once here.
+  const rowSegments = [
+    ...new Set(
+      customText.trim()
+        ? customText
+            .split("\n")
+            .map((l) => l.split("|")[0].trim())
+            .filter(Boolean)
+        : segments,
+    ),
+  ];
+
+  function toggleBan(label: string) {
+    setExcluded((x) =>
+      x.includes(label) ? x.filter((s) => s !== label) : [...x, label],
+    );
+  }
 
   async function save() {
     setBusy(true);
@@ -49,6 +77,11 @@ function RigRow({
           username: account.username,
           result,
           remaining,
+          excluded,
+          segments: customText
+            .split("\n")
+            .map((l) => l.trim())
+            .filter(Boolean),
         }),
       });
       if (res.ok) {
@@ -69,14 +102,29 @@ function RigRow({
       <td className="whitespace-nowrap p-3 hud">{fmt(account.lastSeen)}</td>
       <td className="p-3 text-muted">{account.logins}</td>
       <td className="p-3">
-        {active ? (
-          <span className="stamp border-accent text-accent">
-            {account.rigResult}
-            {account.rigRemaining > 0 ? ` ×${account.rigRemaining}` : " ∞"}
-          </span>
-        ) : (
-          <span className="text-muted">—</span>
-        )}
+        <div className="space-y-1">
+          {active ? (
+            <span className="stamp border-accent text-accent">
+              {account.rigResult}
+              {account.rigRemaining > 0 ? ` ×${account.rigRemaining}` : " ∞"}
+            </span>
+          ) : null}
+          {account.excluded.length > 0 ? (
+            <span className="stamp block border-blood text-blood">
+              {account.excluded.length} banned
+            </span>
+          ) : null}
+          {account.customSegments.length > 0 ? (
+            <span className="stamp block border-evidence text-evidence">
+              own wheel
+            </span>
+          ) : null}
+          {!active &&
+          account.excluded.length === 0 &&
+          account.customSegments.length === 0 ? (
+            <span className="text-muted">—</span>
+          ) : null}
+        </div>
       </td>
       <td className="p-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -86,7 +134,7 @@ function RigRow({
             onChange={(e) => setResult(e.target.value)}
           >
             <option value="">— no rig —</option>
-            {segments.map((s) => (
+            {rowSegments.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
@@ -104,6 +152,30 @@ function RigRow({
           />
           <button
             type="button"
+            onClick={() => setOpenBans((v) => !v)}
+            className={`rounded-full border px-3 py-1.5 font-typewriter text-[10px] uppercase transition ${
+              excluded.length
+                ? "border-blood text-blood"
+                : "border-line text-muted hover:text-blood"
+            }`}
+            title="Segments this account can never land on"
+          >
+            ban {excluded.length ? `(${excluded.length})` : ""}
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpenWheel((v) => !v)}
+            className={`rounded-full border px-3 py-1.5 font-typewriter text-[10px] uppercase transition ${
+              customText.trim()
+                ? "border-evidence text-evidence"
+                : "border-line text-muted hover:text-evidence"
+            }`}
+            title="Give this account its own wheel"
+          >
+            wheel
+          </button>
+          <button
+            type="button"
             onClick={save}
             disabled={busy}
             className="btn-primary px-4 py-1.5 text-xs"
@@ -112,6 +184,54 @@ function RigRow({
           </button>
           {saved ? <span className="hud text-accent">✓</span> : null}
         </div>
+
+        {openBans ? (
+          <div className="mt-2 rounded-lg border border-line bg-surface-2/60 p-2">
+            <p className="hud mb-1.5 text-[9px] text-blood">
+              they can never land on:
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {rowSegments.length === 0 ? (
+                <span className="text-xs text-muted">no segments configured</span>
+              ) : (
+                rowSegments.map((sg) => (
+                  <button
+                    key={sg}
+                    type="button"
+                    onClick={() => toggleBan(sg)}
+                    className={`rounded-full border px-2.5 py-0.5 font-typewriter text-[10px] transition ${
+                      excluded.includes(sg)
+                        ? "border-blood bg-blood text-white"
+                        : "border-line text-muted hover:border-blood hover:text-blood"
+                    }`}
+                  >
+                    {sg}
+                  </button>
+                ))
+              )}
+            </div>
+            <p className="hud mt-1.5 text-[9px]">
+              pick, then hit Set. blocked ones simply never come up.
+            </p>
+          </div>
+        ) : null}
+
+        {openWheel ? (
+          <div className="mt-2 rounded-lg border border-line bg-surface-2/60 p-2">
+            <p className="hud mb-1.5 text-[9px] text-evidence">
+              their own wheel · one per line · blank = the default wheel
+            </p>
+            <textarea
+              className="input min-h-[90px] w-full resize-y font-mono text-[11px]"
+              placeholder={"$50 tribute\nhand it over|info|your address\na picture of me|reward|/media/x.jpg"}
+              value={customText}
+              onChange={(e) => setCustomText(e.target.value)}
+            />
+            <p className="hud mt-1.5 text-[9px]">
+              same format as Settings. hit Set to apply — only this account sees it.
+            </p>
+          </div>
+        ) : null}
       </td>
     </tr>
   );

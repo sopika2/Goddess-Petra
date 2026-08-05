@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getSettings, isSafeUrl } from "@/lib/settings";
 import { readUserSession } from "@/lib/usersession";
-import WheelGame from "@/components/games/WheelGame";
-import RouletteGame from "@/components/games/RouletteGame";
+import { getRig, effectiveSegments } from "@/lib/games";
+import GamesBoard from "@/components/games/GamesBoard";
 import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
@@ -20,6 +20,18 @@ export default async function GamesPage() {
   if (!s.gamesEnabled) redirect("/");
   const user = await readUserSession();
   const throneUrl = isSafeUrl(s.throneUrl) ? s.throneUrl : "";
+
+  // She can hand any account its own wheel; everyone else gets the default.
+  // The player's wheel must match what the spin route picks from, so both
+  // resolve it the same way.
+  let segments = s.wheelSegments;
+  if (user) {
+    try {
+      segments = effectiveSegments(s.wheelSegments, await getRig(user.id));
+    } catch {
+      /* fall back to the default wheel */
+    }
+  }
 
   return (
     <main className="min-h-screen">
@@ -63,17 +75,17 @@ export default async function GamesPage() {
             </a>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-12">
+          <div className="flex flex-col items-center gap-10">
             <p className="hud text-muted">
               playing as <span className="text-accent">@{user.username}</span> ·
               she&apos;s watching
             </p>
-            <WheelGame
-              segments={s.wheelSegments}
+            <GamesBoard
+              segments={segments}
+              rouletteEnabled={s.rouletteEnabled}
               throneUrl={throneUrl}
               throneButton={s.throneButton}
             />
-            <RouletteGame throneUrl={throneUrl} throneButton={s.throneButton} />
           </div>
         )}
       </section>

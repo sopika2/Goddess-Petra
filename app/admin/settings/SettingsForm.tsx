@@ -313,9 +313,66 @@ export default function SettingsForm({ initial }: { initial: SiteSettings }) {
             }
           />
           <p className="mt-1 text-xs text-muted">
-            The Throne gifts/tributes a spin can land on — one per line. Keep them
-            short so they fit the wheel. Landing on one sends the loser to your
-            Throne to pay it.
+            One per line. Plain text still works (that&apos;s a tribute), or add a
+            type to make it <em>do</em> something:{" "}
+            <code>label|kind|extra</code> — kinds are{" "}
+            <code>tribute</code>, <code>info</code>, <code>reward</code>,{" "}
+            <code>task</code>. Players only ever see the label.
+          </p>
+          <div className="mt-2 space-y-1 rounded-lg border border-line bg-surface-2 p-3 font-mono text-[11px] text-muted">
+            <p>$20 tribute</p>
+            <p>hand it over|info|your real name and city</p>
+            <p>a picture of me ♡|reward|/media/your-upload.jpg</p>
+            <p>on your knees|task|10 minutes. no arguing.</p>
+          </div>
+          <p className="mt-1 text-xs text-muted">
+            <strong className="text-white">Repeat a line to load the odds.</strong>{" "}
+            Listing <code>$100 tribute</code> three times gives it three slices
+            — three chances out of the total, instead of one. The wheel shows
+            all three (same colour, so it reads as one fat block) and the key
+            below it marks them <code>×3</code>.
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            <strong className="text-white">info</strong> makes them type it in —
+            it arrives as a DM in your Inbox and pings you.{" "}
+            <strong className="text-white">reward</strong> shows them the
+            picture/video you point at (upload one on the Games page to get its
+            link). Anything with a <code>$</code> amount counts toward what they
+            owe on the scoreboard.
+          </p>
+        </div>
+        <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-4">
+          <input
+            type="checkbox"
+            checked={form.rouletteEnabled}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, rouletteEnabled: e.target.checked }))
+            }
+            className="mt-1 h-4 w-4 accent-accent"
+          />
+          <span className="text-sm text-muted">
+            <strong className="text-white">Show the roulette table.</strong> Turn
+            it off and the wheel is the only game — the tab disappears and
+            roulette spins are refused.
+          </span>
+        </label>
+        <div>
+          <label className="label">Roulette stake</label>
+          <input
+            type="number"
+            min={0}
+            className="input max-w-[10rem]"
+            value={form.rouletteStake}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                rouletteStake: parseInt(e.target.value, 10) || 0,
+              }))
+            }
+          />
+          <p className="mt-1 text-xs text-muted">
+            What a losing roulette spin costs them. The green zero costs 5× that.
+            Winning only buys mercy — never money.
           </p>
         </div>
         <Field

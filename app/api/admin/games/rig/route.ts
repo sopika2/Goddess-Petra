@@ -15,9 +15,15 @@ export async function POST(req: Request) {
   let remaining = Number(body?.remaining);
   if (!Number.isFinite(remaining)) remaining = 0;
   remaining = Math.max(-1, Math.floor(remaining));
+  const excluded = Array.isArray(body?.excluded)
+    ? body.excluded.filter((s: unknown) => typeof s === "string")
+    : [];
+  const segments = Array.isArray(body?.segments)
+    ? body.segments.filter((s: unknown) => typeof s === "string")
+    : [];
   if (!userId) {
     return NextResponse.json({ error: "Missing userId" }, { status: 400 });
   }
-  await setRig(userId, username, result, remaining);
+  await setRig({ userId, username, result, remaining, excluded, segments });
   return NextResponse.json({ ok: true });
 }

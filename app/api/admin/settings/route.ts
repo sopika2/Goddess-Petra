@@ -118,6 +118,12 @@ export async function PUT(req: Request) {
   if (typeof body?.adsFeedCooldownSeconds === "number" && isFinite(body.adsFeedCooldownSeconds)) {
     patch.adsFeedCooldownSeconds = Math.max(5, Math.min(86400, Math.floor(body.adsFeedCooldownSeconds)));
   }
+  if (typeof body?.rouletteEnabled === "boolean") {
+    patch.rouletteEnabled = body.rouletteEnabled;
+  }
+  if (typeof body?.rouletteStake === "number" && isFinite(body.rouletteStake)) {
+    patch.rouletteStake = Math.max(0, Math.min(100000, Math.floor(body.rouletteStake)));
+  }
   const saved = await updateSettings(patch);
   return NextResponse.json(saved);
 }

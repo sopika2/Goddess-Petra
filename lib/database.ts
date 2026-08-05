@@ -118,7 +118,9 @@ async function ensureSchema(pool: mysql.Pool): Promise<void> {
     username VARCHAR(40) NOT NULL DEFAULT '',
     result VARCHAR(160) NOT NULL DEFAULT '',
     remaining INT NOT NULL DEFAULT 0,
-    updated_at VARCHAR(40) NOT NULL
+    updated_at VARCHAR(40) NOT NULL,
+    excluded TEXT,
+    segments TEXT
   ) ENGINE=InnoDB`);
 
   await pool.query(`CREATE TABLE IF NOT EXISTS messages (
@@ -288,6 +290,13 @@ const ADDED_COLUMNS: Record<string, Record<string, string>> = {
     media_url: "VARCHAR(300) NOT NULL DEFAULT ''",
     kind: "VARCHAR(10) NOT NULL DEFAULT 'text'",
     link: "VARCHAR(300) NOT NULL DEFAULT ''",
+  },
+  game_rigs: {
+    // JSON array of segment labels this account can never land on.
+    excluded: "TEXT",
+    // JSON array of raw segment strings — this account's own wheel. Empty =
+    // they get the default wheel from Settings.
+    segments: "TEXT",
   },
 };
 
